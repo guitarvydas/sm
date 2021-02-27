@@ -1,45 +1,45 @@
+// npm install ohm-js
 const grammar = `
+<<< grammar goes here >>>
+`;
 
-SM {
 
-  stateMachine = nameSection inputSection outputSection machineSection delim*
-  nameSection = "name" ":" name delim*
-  inputSection = "inputs" ":" name+ delim*
-  outputSection = "outputs" ":" name+ delim*
-  
-  machineSection = header state+ trailer
-  header = "machine" name ":" delim*
-  trailer = "end" delim* "machine" delim*
-
-  state = "state" name ":" delim* entrySection delim* transition*
-  entrySection = "entry" ":" string delim* 
-  transition = "on" name delim* ":" delim* "next" name delim*
-
-  inputPinName = name
-  outputPinName = name
-  machineName = name
-  stateName = name
-
-  inputPinReference = name
-  stateReference = name
-
-  name = delim+ ~keyword id
-
-  keyword = "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default"
-
-  id = firstId followId*
-  firstId = "A".."Z" | "a".."z" | "_"
-  followId = firstId
-
-  string = delim* "\\"" stringChar* "\\""
-  stringChar =
-        escapedChar                                
-     |  anyStringChar
-  escapedChar = "\\\\" any
-  anyStringChar = ~"\\"" any
- 
-  delim = " " | "\\t" | "\\n" | ","
-
+function parse (text) {
+    var ohm = require ('ohm-js');
+    var parser = ohm.grammar (grammar);
+    var result = parser.match (text);
+    if (result.succeeded ()) {
+	var semantics = parser.createSemantics ();
+	return result;
+    } else {
+	console.log (parser.trace (text).toString ());
+	throw "Ohm matching failed";
+    }
+}
+function main () {
+    var text = getJSON("-");
+    var parsed = parse (text);
+    return parsed;
 }
 
-`;
+
+
+var fs = require ('fs');
+
+function getNamedFile (fname) {
+    if (fname === undefined || fname === null || fname === "-") {
+	return fs.readFileSync (0, 'utf-8');
+    } else {
+	return fs.readFileSync (fname, 'utf-8');
+    }	
+}
+
+function getJSON (fname) {
+    var s = getNamedFile (fname);
+    return s;
+    return (JSON.parse (s));
+}
+
+
+var result = main ();
+console.log (result.toString ());

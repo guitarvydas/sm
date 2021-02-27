@@ -13,3 +13,11 @@
 
 * details
 ** https://github.com/harc/ohm
+
+* run grammar
+** npm install ohm-js
+** copy/paste test code into toggle.scl
+** copy/paste grammar into sm.js
+*** double-up backslashes
+** node sm <toggle.scl
+

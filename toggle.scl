@@ -6,12 +6,11 @@ outputs:
   _no
   _yes
 
-machine Toggle:
-  state: _off
+machine xyz:
+  state _off:
     entry: "fire (_no, true);"
-    on _in: next _on
-  state: _on
+    on _in : next _on
+  state _on:
     entry: "fire (_yes, true);"
-    on _in: next _off
-  default: _off
+    on _in : next _off
 end machine

@@ -1,0 +1,15 @@
+* How to transpile "toggle.scl" using Ohm-JS
+
+* mock up the language
+** mock up language in an editor
+
+* write grammar
+** use an editor to write the grammar 
+
+* test grammar
+** diehard 
+*** lint grammar using YACC/Bison
+** use Ohm Editor  https://ohmlang.github.io/editor/ to bench test the grammar
+
+* details
+** https://github.com/harc/ohm

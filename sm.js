@@ -1,6 +1,49 @@
 // npm install ohm-js
 const grammar = `
-<<< grammar goes here >>>
+SM {
+
+  Main = StateMachine
+  StateMachine = NameSection InputSection OutputSection MachineSection
+  NameSection = "name" ":" Name
+  InputSection = "inputs" ":" InputPinNames
+  OutputSection = "outputs" ":" OutputPinNames
+  
+  MachineSection = Header State+ Trailer
+  Header = "machine" MachineName ":"
+  Trailer = "end" "machine"
+
+  State = "state" Name ":" EntrySection Transition*
+  EntrySection = "entry" ":" string
+  Transition = "on" Name ":" "next" Name
+
+
+
+  keyword = "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default"
+  InputPinNames = nameList
+  OutputPinNames = nameList
+  MachineName = Name
+  StateName = Name
+  InputPinReference = Name
+  StateReference = Name
+  Name = ~keyword id
+  nameList = (~keyword id delim)+
+
+
+
+  id = firstId followId*
+  firstId = "A".."Z" | "a".."z" | "_"
+  followId = firstId
+
+  string = "\\"" stringChar* "\\""
+  stringChar =
+        escapedChar                                
+     |  anyStringChar
+  escapedChar = "\\\\" any
+  anyStringChar = ~"\\"" any
+ 
+  delim = (" " | "\\t" | "\\n")+
+  
+}
 `;
 
 
@@ -17,7 +60,7 @@ function parse (text) {
     }
 }
 function main () {
-    var text = getJSON("-");
+    var text = getNamedFile("-");
     var parsed = parse (text);
     return parsed;
 }
@@ -32,12 +75,6 @@ function getNamedFile (fname) {
     } else {
 	return fs.readFileSync (fname, 'utf-8');
     }	
-}
-
-function getJSON (fname) {
-    var s = getNamedFile (fname);
-    return s;
-    return (JSON.parse (s));
 }
 
 

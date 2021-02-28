@@ -71,43 +71,95 @@ function getNamedFile (fname) {
     }	
 }
 
+///// stacks & stacks of lists /////
+function stack () {
+    this._stack = [null];
+    this.beginScope = function () {};
+    this.endScope = function () { this._stack.pop (); };
+    this.pop = function () { return this._stack.pop (); };
+    this.top = function () { var index = this._stack.length - 1; return this._stack[index]; };
+    this.set = function (val) { var a = this.top (); a.push (val); };
+    this.topToString = function () {
+	var a = this.top ();
+	var s = a.map (item => { return item.toString (); });
+	return s.join ('');
+    };
+    this.toString = function () {
+	var as = this._stack.map (a => { return a.toString (); });
+	return as.join ('');
+    };
+}
+
+function stackList () {
+    this._stack = [[]];
+    this.beginScope = function () {};
+    this.endScope = function () { this._stack.pop (); };
+    this.pop = function () { return this._stack.pop (); };
+    this.top = function () { var index = this._stack.length - 1; return this._stack[index]; };
+    this.append = function (val) { var a = this.top (); a.push (val); };
+    this.topToString = function () {
+	var a = this.top ();
+	var s = a.map (item => { return item.toString (); });
+	return s.join ('');
+    };
+    this.toString = function () {
+	var as = this._stack.map (a => { return a.topToString (); });
+	return as.join ('');
+    };
+}
+
+//////////////////
+
+
 //////////// transpiler ////////
 
-var nameCounter;
+var counterStack;
+var nameStack;
+var preStack;
+var codeStack;
+function resetStacks () { 
+    countStack = new stack ();
+    countStack.set (0);
+    nameStack = new StackList ();
+    preStack = new StackList ();
+    codeStack = new StackList ();
+}
+
+function incrementCount () { countStack.set (1 + countStack.top ()); }
+function gen () {
+    var i = countStack.top;
+    countStack.set (1 + i);
+    return i;
+}
 
 function createTranspiler (parser) {
     var semantics = parser.createSemantics ();
-    nameCounter = 0;
     semantics.addOperation (
 	"js",
 	{
-	    Main : function (_1) { return _1.js (); }, // StateMachine
-	    
-	    StateMachine : function (_1, _2, _3, _4) { // NameSection InputSection OutputSection MachineSection
-		var nameSection = _1.js ();
-		var inputSection = _2.js ();
-		var outputSection = _3.js ();
-		var machineSection = _4.js ();
-		return `
-${inputSection}
-${outputSection}
-${machineSection}
-`;
+	    Main : function (_1) { // StateMachine
+		_1.js ();
 	    },
 	    
-	    NameSection : function (_1, _2, _3) { return _3.js ().name; }, // "name" ":" Name
-	    InputSection : function (_1, _2, _3) { return _3.js (); }, // "inputs" ":" InputPinNames
-	    OutputSection : function (_1, _2, _3) { return _3.js (); }, // "outputs" ":" OutputPinNames
+	    StateMachine : function (_1, _2, _3, _4) { // NameSection InputSection OutputSection MachineSection
+		_1.js (), _2.js (), _3.js (), _4.js ();
+	    },
+	    
+	    NameSection : function (_1, _2, _3) { // "name" ":" Name
+		_1.js (), _2.js (), _3.js ();
+		preStack.append (`const ${nameStack.pop ()} = ${gen ()};`};
+	    },
+	    InputSection : function (_1, _2, _3) { _1.js (), _2.js (), _3.js (); }, // "inputs" ":" InputPinNames
+	    OutputSection : function (_1, _2, _3) { _1.js (), _2.js (), _3.js (); }, // "outputs" ":" OutputPinNames
 	    
 	    MachineSection : function (_1, _2s, _3, _4) { // Header State+ Default Trailer
-		var machineName = _1.js ();
-		var snippets = _2s.js ();
-		var defaultState = _3.js ();
-		var preamble = snippets.map (snippet => { return snippet.preamble; }).join ('\n');
-		var stateCode = snippets.map (snippet => { return snippet.step; }).join ('\n');
-		var entryCode = snippets.map (snippet => { return snippet.entry; }).join ('\n');		
+		// <nameStack <nameStack <codeStack <codeStack >codeStack
+		_1.js (), _2.js (), _3.js (), _4.js ();
+		var defaultState = nameStack.pop ();
+		var machineName = nameStack.pop ();
+		var stateCode = codeStack.pop ();
+&&&		var entryCode = codeStack.pop ();
 		var smCode = `
-${preamble}
 function ${machineName} () {
   this.state = ${defaultState};
   this.enter = function (next_state) {
@@ -122,13 +174,14 @@ function ${machineName} () {
  }
 }
 `;
-		return smCode;
+		codeStack.push (smCode);
 	    },
 	    
-	    Header : function (_1, _2, _3) { return _2.js (); }, // "machine" MachineName ":"
-	    Trailer : function (_1, _2) {return "";}, // "end" "machine"
+	    Header : function (_1, _2, _3) { _1.js (), _2.js (), _3.js (); }, // "machine" MachineName ":"
+	    Trailer : function (_1, _2) { _1.js (), _2.js ();}, // "end" "machine"
 	    
 	    State : function (_1, _2, _3, _4, _5s) {  // "state" StateName ":" EntrySection Transition*
+		_1.js (), _2.js (), _3.js (), _4.js (), _5s.js ();
 		var pair = _2.js ();
 		var name = pair.name;
 		var preamble = pair.preamble;
@@ -161,11 +214,11 @@ break;`;
 	    },
 	    
 	    Default : function (_1 ,_2, _3) { // "default" ":" Name
-		var name = _3.js ().name;
-		return name;
+		_1.js (), _2.js (), _3.js ();
+		preStack.push (`const ${nameStack.pop ()} = ${gensym ()};`);
 	    },
 	    
-	    keyword : function (_1) {return _1.js ()}, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default"
+	    keyword : function (_1) { _1.js ()}, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default"
 	    InputPinNames : function (_1) {return _1.js ()}, // nameList
 	    OutputPinNames : function (_1) {return _1.js ()}, // nameList
 	    MachineName : function (_1) {return _1.js ().name}, // Name
@@ -210,7 +263,11 @@ break;`;
 var text = getNamedFile("-");
 var {parser, tree} = parse (text);
 var transpiler = createTranspiler (parser);
-console.log (transpiler (tree).js ());
+
+resetStacks ();
+transpiler (tree).js ();
+
+console.log (preStack.toString () + codeStack.toString ());
 
 // boilerplate
 console.log (`

@@ -93,17 +93,17 @@ ${machineSection}
 `;
 	    },
 	    
-	    NameSection : function (_1, _2, _3) { return _3.js (); }, // "name" ":" Name
+	    NameSection : function (_1, _2, _3) { return _3.js ().name; }, // "name" ":" Name
 	    InputSection : function (_1, _2, _3) { return _3.js (); }, // "inputs" ":" InputPinNames
 	    OutputSection : function (_1, _2, _3) { return _3.js (); }, // "outputs" ":" OutputPinNames
 	    
 	    MachineSection : function (_1, _2s, _3) { // Header State+ Trailer
 		var machineName = _1.js ();
 		var snippets = _2s.js ();
-		var preamble = snippets.map (triple => { return triple.preamble; }).join ('\n');
-		var stateCode = snippets.map (triple => { return triple.step; }).join ('\n');
-		var defaultState = snippets.map (triple => { return triple.defaultState; }).join ('\n');
-		var entryCode = snippets.map (triple => { return triple.entry; }).join ('\n');		
+		var preamble = snippets.map (snippet => { return snippet.preamble; }).join ('\n');
+		var stateCode = snippets.map (snippet => { return snippet.step; }).join ('\n');
+		var defaultState = snippets.map (snippet => { return snippet.defaultState; }).join ('\n');
+		var entryCode = snippets.map (snippet => { return snippet.entry; }).join ('\n');		
 		var smCode = `
 ${preamble}
 function ${machineName} () {
@@ -127,28 +127,30 @@ function ${machineName} () {
 	    Header : function (_1, _2, _3) { return _2.js (); }, // "machine" MachineName ":"
 	    Trailer : function (_1, _2) {return "";}, // "end" "machine"
 	    
-	    State : function (_1, _2, _3, _4, _5s) {  // "state" Name ":" EntrySection Transition*
-		var name = _2.js ();
+	    State : function (_1, _2, _3, _4, _5s) {  // "state" StateName ":" EntrySection Transition*
+		var pair = _2.js ();
+		var name = pair.name;
+		var preamble = pair.preamble;
 		var entry = _4.js ();
 		var transitions = _5s.js ();
 		var stepcode = `
-case ${name}:
-  switch (event.tag) {
-  ${transitions}
-  };
-break;
+      case ${name}:
+	switch (event.tag) {
+	${transitions}
+	};
+      break;
 `;
 		var entrycode = `case ${name}:\n${entry}\nbreak;`;
-		return { preamble: name, step: stepcode, entry: entrycode, defaultState: "" };
+		return { preamble: preamble, step: stepcode, entry: entrycode, defaultState: "" };
 	    },
 	    EntrySection : function (_1, _2, _3) {return _3.js ()}, // "entry" ":" string
 	    Transition : function (_1, _2, _3, _4, _5) { // "on" Name ":" "next" Name
-                var tagName = _2.js ();
-		var nextStateName = _5.js ();
+                var tagName = _2.js ().name;
+		var nextStateName = _5.js ().name;
 		var transitionCode = `
-case ${tagName}: 
-  this.enter (${nextStateName});
-  break;
+      case ${tagName}: 
+	this.enter (${nextStateName});
+	break;
 		`;
 		return transitionCode;
 	    },
@@ -158,15 +160,15 @@ case ${tagName}:
 	    keyword : function (_1) {return _1.js ()}, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default"
 	    InputPinNames : function (_1) {return _1.js ()}, // nameList
 	    OutputPinNames : function (_1) {return _1.js ()}, // nameList
-	    MachineName : function (_1) {return _1.js ()}, // Name
+	    MachineName : function (_1) {return _1.js ().name}, // Name
 	    StateName : function (_1) {return _1.js ()}, // Name
-	    InputPinReference : function (_1) {return _1.js ()}, // Name
-	    StateReference : function (_1) {return _1.js ()}, // Name
+	    InputPinReference : function (_1) {return _1.js ().name}, // Name
+	    StateReference : function (_1) {return _1.js ().name}, // Name
 	    Name : function (_1) { // ~keyword id
 		var name = _1.js ();
 		nameCounter += 1;
 		var constant = `const ${name} = ${nameCounter};`;
-		return {preamble: constant, name: name};
+		return { preamble: constant, name: name };
 	    },
 	    nameList : function (_1s, _2s) { // (~keyword id delim)+
 		var consts = _1s.js ().map (name => {
@@ -201,3 +203,21 @@ var text = getNamedFile("-");
 var {parser, tree} = parse (text);
 var transpiler = createTranspiler (parser);
 console.log (transpiler (tree).js ());
+
+// boilerplate
+console.log (`
+ function fire (output, value) {
+  console.log ("Fire called: " + this.toString () + " output:" + output.toString () + " value:" + value.toString ());
+ }
+ function send (component, tag, value) {
+  component.step ( {tag, value} );
+ }
+ function inject (component, event) {
+  component.step (event);
+ }
+ var top = new Toggle ();
+ inject (top, {tag: _in, value: true});
+ inject (top, {tag: _in, value: true});
+ inject (top, {tag: _in, value: true});
+`);
+

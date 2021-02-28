@@ -13,4 +13,5 @@ machine Toggle:
   state _on:
     entry: "fire (_yes, true);"
     on _in : next _off
+  default: _off
 end machine

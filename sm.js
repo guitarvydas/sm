@@ -8,9 +8,10 @@ SM {
   InputSection = "inputs" ":" InputPinNames
   OutputSection = "outputs" ":" OutputPinNames
   
-  MachineSection = Header State+ Trailer
+  MachineSection = Header State+ Default Trailer
   Header = "machine" MachineName ":"
   Trailer = "end" "machine"
+  Default = "default" ":" Name
 
   State = "state" StateName ":" EntrySection Transition*
   EntrySection = "entry" ":" string
@@ -98,27 +99,26 @@ ${machineSection}
 	    InputSection : function (_1, _2, _3) { return _3.js (); }, // "inputs" ":" InputPinNames
 	    OutputSection : function (_1, _2, _3) { return _3.js (); }, // "outputs" ":" OutputPinNames
 	    
-	    MachineSection : function (_1, _2s, _3) { // Header State+ Trailer
+	    MachineSection : function (_1, _2s, _3, _4) { // Header State+ Default Trailer
 		var machineName = _1.js ();
 		var snippets = _2s.js ();
+		var defaultState = _3.js ();
 		var preamble = snippets.map (snippet => { return snippet.preamble; }).join ('\n');
 		var stateCode = snippets.map (snippet => { return snippet.step; }).join ('\n');
-		var defaultState = snippets.map (snippet => { return snippet.defaultState; }).join ('\n');
 		var entryCode = snippets.map (snippet => { return snippet.entry; }).join ('\n');		
 		var smCode = `
 ${preamble}
 function ${machineName} () {
-  this.state = null;
-  this.step = function (event) {
-    switch (this.state) {
-      ${stateCode}
-      default: ${defaultState}
-    };
+  this.state = ${defaultState};
   this.enter = function (next_state) {
     switch (next_state) {
       ${entryCode}
     }
   }
+  this.step = function (event) {
+    switch (this.state) {
+      ${stateCode}
+    };
  }
 }
 `;
@@ -141,7 +141,11 @@ function ${machineName} () {
 	};
       break;
 `;
-		var entrycode = `case ${name}:\n${entry}\nbreak;`;
+		var entrycode = `
+case ${name}:
+${entry}
+this.state = ${name};
+break;`;
 		return { preamble: preamble, step: stepcode, entry: entrycode, defaultState: "" };
 	    },
 	    EntrySection : function (_1, _2, _3) {return _3.js ()}, // "entry" ":" string
@@ -156,7 +160,10 @@ function ${machineName} () {
 		return transitionCode;
 	    },
 	    
-	    
+	    Default : function (_1 ,_2, _3) { // "default" ":" Name
+		var name = _3.js ().name;
+		return name;
+	    },
 	    
 	    keyword : function (_1) {return _1.js ()}, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default"
 	    InputPinNames : function (_1) {return _1.js ()}, // nameList

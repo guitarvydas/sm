@@ -70,7 +70,8 @@ function getNamedFile (fname) {
     }	
 }
 
-////////////
+//////////// transpiler ////////
+
 var nameCounter;
 
 function createTranspiler (parser) {

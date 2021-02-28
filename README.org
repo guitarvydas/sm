@@ -21,7 +21,7 @@
 *** double-up backslashes
 ** node sm <toggle.scl
 
-* semantics
+* emit JS code (semantics)
 ** decide what is going to be emitted
 *** I choose to return an array from every rule
 *** in JS --> .push(newString)

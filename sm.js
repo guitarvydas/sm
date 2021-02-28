@@ -50,21 +50,14 @@ SM {
 function parse (text) {
     var ohm = require ('ohm-js');
     var parser = ohm.grammar (grammar);
-    var result = parser.match (text);
-    if (result.succeeded ()) {
-	var semantics = parser.createSemantics ();
-	return result;
+    var cst = parser.match (text);
+    if (cst.succeeded ()) {
+	return {parser: parser, tree: cst};
     } else {
 	console.log (parser.trace (text).toString ());
 	throw "Ohm matching failed";
     }
 }
-function main () {
-    var text = getNamedFile("-");
-    var parsed = parse (text);
-    return parsed;
-}
-
 
 
 var fs = require ('fs');
@@ -78,8 +71,9 @@ function getNamedFile (fname) {
 }
 
 ////////////
-function addTranspiler (sem) {
-    sem.addOperation (
+function createTranspiler (parser) {
+    var semantics = parser.createSemantics ();
+    semantics.addOperation (
 	"js",
 	{
 	    Main : function (_1) { return _1.js (); }, // StateMachine
@@ -128,13 +122,21 @@ function ${machineName} () {
 	    State : function (_1, _2, _3, _4, _5s) {  // "state" Name ":" EntrySection Transition*
 		var name = _2.js ();
 		var entry = _4.js ();
-		var transitions = _5.js ();
+		var transitions = _5s.js ();
 		var stepcode = `case ${name}:\n${transitions}\nbreak;`;
 		var entrycode = `case ${name}:\n${entry}\nbreak;`;
 		return { step: stepcode, entry: entrycode, defaultState: "" };
 	    },
 	    EntrySection : function (_1, _2, _3) {return _3.js ()}, // "entry" ":" string
-	    Transition : function (_1, _2, _3, _4, _5) {}, // "on" Name ":" "next" Name
+	    Transition : function (_1, _2, _3, _4, _5) { // "on" Name ":" "next" Name
+                var tagName = _2.js ();
+		var nextStateName = _5.js ();
+		var transitionCode = `
+case ${tagName}: 
+  this.enter (${nextStateName});
+  break;
+		`;
+	    },
 	    
 	    
 	    
@@ -159,7 +161,7 @@ function ${machineName} () {
 	    firstId : function (_1) {return _1.js ()}, // "A".."Z" | "a".."z" | "_"
 	    followId : function (_1) {return _1.js ()}, // firstId
 	    
-	    string : function (_1, _2s, _3) { return `${_2s.js ().join ('');}`; }, // "\\"" stringChar* "\\""
+	    string : function (_1, _2s, _3) { return `${_2s.js ().join ('')}`; }, // "\\"" stringChar* "\\""
 	    escapedChar : function (_1, _2) { return _2.js (); }, // "\\\\" any
 	    anyStringChar : function (_1) {return _1.js ();}, // ~"\\"" any
 	    
@@ -167,8 +169,11 @@ function ${machineName} () {
 	    
 	    _terminal: function () { return this.primitiveValue; }
 	});
+    return semantics;
 }
 ////////////
 
-var result = main ();
-console.log (result.toString ());
+var text = getNamedFile("-");
+var {parser, tree} = parse (text);
+var transpiler = createTranspiler (parser);
+console.log (transpiler (tree).js ());

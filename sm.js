@@ -12,7 +12,7 @@ SM {
   Header = "machine" MachineName ":"
   Trailer = "end" "machine"
 
-  State = "state" Name ":" EntrySection Transition*
+  State = "state" StateName ":" EntrySection Transition*
   EntrySection = "entry" ":" string
   Transition = "on" Name ":" "next" Name
 
@@ -71,8 +71,11 @@ function getNamedFile (fname) {
 }
 
 ////////////
+var nameCounter;
+
 function createTranspiler (parser) {
     var semantics = parser.createSemantics ();
+    nameCounter = 0;
     semantics.addOperation (
 	"js",
 	{
@@ -83,21 +86,26 @@ function createTranspiler (parser) {
 		var inputSection = _2.js ();
 		var outputSection = _3.js ();
 		var machineSection = _4.js ();
-		return machineSection;
+		return `
+${inputSection}
+${outputSection}
+${machineSection}
+`;
 	    },
 	    
-	    NameSection : function (_1, _2, _3) {}, // "name" ":" Name
-	    InputSection : function (_1, _2, _3) {}, // "inputs" ":" InputPinNames
-	    OutputSection : function (_1, _2, _3) {}, // "outputs" ":" OutputPinNames
+	    NameSection : function (_1, _2, _3) { return _3.js (); }, // "name" ":" Name
+	    InputSection : function (_1, _2, _3) { return _3.js (); }, // "inputs" ":" InputPinNames
+	    OutputSection : function (_1, _2, _3) { return _3.js (); }, // "outputs" ":" OutputPinNames
 	    
 	    MachineSection : function (_1, _2s, _3) { // Header State+ Trailer
 		var machineName = _1.js ();
-		var triples = _2s.js ();
-		var stateCode = triples.map (triple => { return triple.step; }).join ('\n');
-		var defaultState = triples.map (triple => { return triple.defaultState; }).join ('\n');
-		var entryCode = triples.map (triple => { return triple.entry; }).join ('\n');
-		
+		var snippets = _2s.js ();
+		var preamble = snippets.map (triple => { return triple.preamble; }).join ('\n');
+		var stateCode = snippets.map (triple => { return triple.step; }).join ('\n');
+		var defaultState = snippets.map (triple => { return triple.defaultState; }).join ('\n');
+		var entryCode = snippets.map (triple => { return triple.entry; }).join ('\n');		
 		var smCode = `
+${preamble}
 function ${machineName} () {
   this.state = null;
   this.step = function (event) {
@@ -123,9 +131,15 @@ function ${machineName} () {
 		var name = _2.js ();
 		var entry = _4.js ();
 		var transitions = _5s.js ();
-		var stepcode = `case ${name}:\n${transitions}\nbreak;`;
+		var stepcode = `
+case ${name}:
+  switch (event.tag) {
+  ${transitions}
+  };
+break;
+`;
 		var entrycode = `case ${name}:\n${entry}\nbreak;`;
-		return { step: stepcode, entry: entrycode, defaultState: "" };
+		return { preamble: name, step: stepcode, entry: entrycode, defaultState: "" };
 	    },
 	    EntrySection : function (_1, _2, _3) {return _3.js ()}, // "entry" ":" string
 	    Transition : function (_1, _2, _3, _4, _5) { // "on" Name ":" "next" Name
@@ -136,6 +150,7 @@ case ${tagName}:
   this.enter (${nextStateName});
   break;
 		`;
+		return transitionCode;
 	    },
 	    
 	    
@@ -147,17 +162,26 @@ case ${tagName}:
 	    StateName : function (_1) {return _1.js ()}, // Name
 	    InputPinReference : function (_1) {return _1.js ()}, // Name
 	    StateReference : function (_1) {return _1.js ()}, // Name
-	    Name : function (_1) {return _1.js ()}, // ~keyword id
+	    Name : function (_1) { // ~keyword id
+		var name = _1.js ();
+		nameCounter += 1;
+		var constant = `const ${name} = ${nameCounter};`;
+		return {preamble: constant, name: name};
+	    },
 	    nameList : function (_1s, _2s) { // (~keyword id delim)+
-		return _1s.js ().map (name => {
-		    inputCounter += 1;
-		    return `const ${name} = ${inputCounter};`;
+		var consts = _1s.js ().map (name => {
+		    nameCounter += 1;
+		    return `const ${name} = ${nameCounter};`;
 		});
+		return consts.join ('\n');
 	    }, 
 	    
 	    
 	    
-	    id : function (_1, _2s) { return `${_1.js ()}${_2s.js ().join ('')}` }, // firstId followId*
+	    id : function (_1, _2s) {  // firstId followId*
+		var name = `${_1.js ()}${_2s.js ().join ('')}` ;
+		return name;
+	    },
 	    firstId : function (_1) {return _1.js ()}, // "A".."Z" | "a".."z" | "_"
 	    followId : function (_1) {return _1.js ()}, // firstId
 	    

@@ -71,41 +71,48 @@ function getNamedFile (fname) {
     }	
 }
 
-///// stacks & stacks of lists /////
+///// stacks /////
+///// an item can be a single item or a list (Array.isArray) //
 function stack () {
-    this._stack = [null];
+    this._stack = [];
     this.beginScope = function () {};
     this.endScope = function () { this._stack.pop (); };
     this.pop = function () { return this._stack.pop (); };
     this.top = function () { var index = this._stack.length - 1; return this._stack[index]; };
-    this.set = function (val) { var a = this.top (); a.push (val); };
-    this.topToString = function () {
-	var a = this.top ();
-	var s = a.map (item => { return item.toString (); });
-	return s.join ('');
+    this.nth = function (n) { var index = (this._stack.length - 1) - n; return this._stack[index]; };
+    this.npop = function (n) { while (n > 0) { this.pop (); n -= 1; }};
+    this.push = function (val) { this._stack.push (val); };
+    this.depth = function () { return this._stack.length; };
+    this.squash = function (n) {
+	// collect top n items into a list, pop them from the stack, push the list onto the stack
+	var a = new Array ();
+	while (n > 0) {
+	    a.push (this._stack.pop ());
+	    n -= 1;
+	}
+	a.reverse ();
+	this.push (a);
     };
-    this.toString = function () {
+    this.squashToString = function () {
 	var as = this._stack.map (a => { return a.toString (); });
-	return as.join ('');
-    };
-}
-
-function stackList () {
-    this._stack = [[]];
-    this.beginScope = function () {};
-    this.endScope = function () { this._stack.pop (); };
-    this.pop = function () { return this._stack.pop (); };
-    this.top = function () { var index = this._stack.length - 1; return this._stack[index]; };
-    this.append = function (val) { var a = this.top (); a.push (val); };
-    this.topToString = function () {
-	var a = this.top ();
-	var s = a.map (item => { return item.toString (); });
-	return s.join ('');
+	return as.reverse ().join ('\n');
     };
     this.toString = function () {
-	var as = this._stack.map (a => { return a.topToString (); });
-	return as.join ('');
+	var i = 0;
+	var as = this._stack.map (a => { var n = i; i += 1; return `[${n}]: ` + a.toString (); });
+	return as.reverse ().join ('\n');
     };
+    this.mark = function () { this._mark = this._stack.length - 1; };
+    this.collapse = function () {
+	// collapse all entries into a single array, between here and mark
+	var a = [];
+	var i = this._stack.length - 1;
+	while (i >= this._mark) {
+	    a.push (this._stack.pop());
+	    i -= 1;
+	};
+	this._stack.push (a);
+    }
 }
 
 //////////////////
@@ -113,22 +120,32 @@ function stackList () {
 
 //////////// transpiler ////////
 
-var counterStack;
-var nameStack;
-var preStack;
-var codeStack;
+var count__output;
+var name__output;
+var pre__output;
+var code__output;
+var entry__output;
+var step__output;
+var transition__output;
+var string__output;
+var primitive__output;
+
 function resetStacks () { 
-    countStack = new stack ();
-    countStack.set (0);
-    nameStack = new StackList ();
-    preStack = new StackList ();
-    codeStack = new StackList ();
+    count__stack = new stack ();
+    count__stack.push (0);
+    name__stack = new stack ();
+    pre__stack = new stack ();
+    code__stack = new stack ();
+    step__stack = new stack ();
+    entry__stack = new stack ();
+    transition__stack = new stack ();
+    string__stack = new stack ();
+    primitive__stack = new stack ();
 }
 
-function incrementCount () { countStack.set (1 + countStack.top ()); }
 function gen () {
-    var i = countStack.top;
-    countStack.set (1 + i);
+    var i = count__stack.pop ();
+    count__stack.push (1 + i);
     return i;
 }
 
@@ -137,56 +154,96 @@ function createTranspiler (parser) {
     semantics.addOperation (
 	"js",
 	{
-	    Main : function (_1) { // StateMachine
+	    Main : function (_1) { // StateMachine // >> code
+		resetStacks ();
 		_1.js ();
 	    },
 	    
-	    StateMachine : function (_1, _2, _3, _4) { // NameSection InputSection OutputSection MachineSection
-		_1.js (), _2.js (), _3.js (), _4.js ();
+	    StateMachine : function (_1, _2, _3, _4) {
+		// NameSection InputSection OutputSection MachineSection // >> code
+		_1.js (); _2.js (); _3.js (); _4.js ();
+		var name = name__stack.top ();
+		var inputs = pre__stack.nth (1);
+		var outputs = pre__stack.nth (0);
+		var machine = machine__stack.top ();
+		// # name [pre] [pre] machine
+		code__stack.push (name + inputs + outputs + machine);
+		// # name [pre] [pre] machine code
+		name__stack.npop (1);
+		pre__stack.npop (2);
+		machine__stack.npop (1);
+		// # code
 	    },
 	    
-	    NameSection : function (_1, _2, _3) { // "name" ":" Name
-		_1.js (), _2.js (), _3.js ();
-		preStack.append (`const ${nameStack.pop ()} = ${gen ()};`};
+	    NameSection : function (_1, _2, _3) { // "name" ":" Name // >> name
+		_1.js (); _2.js (); _3.js ();
+		primitive__npop (2);
 	    },
-	    InputSection : function (_1, _2, _3) { _1.js (), _2.js (), _3.js (); }, // "inputs" ":" InputPinNames
-	    OutputSection : function (_1, _2, _3) { _1.js (), _2.js (), _3.js (); }, // "outputs" ":" OutputPinNames
+	    InputSection : function (_1, _2, _3) {  // "inputs" ":" InputPinNames
+		_1.js (); _2.js (); _3.js (); 
+		primitive__stack.npop (2); 
+		// # pre
+	    },
+	    OutputSection : function (_1, _2, _3) { // "outputs" ":" OutputPinNames
+		_1.js (); _2.js (); _3.js (); 
+		primitive__stack.npop (2); 
+		// # pre
+	    },
 	    
 	    MachineSection : function (_1, _2s, _3, _4) { // Header State+ Default Trailer
-		// <nameStack <nameStack <codeStack <codeStack >codeStack
-		_1.js (), _2.js (), _3.js (), _4.js ();
-		var defaultState = nameStack.pop ();
-		var machineName = nameStack.pop ();
-		var stateCode = codeStack.pop ();
-&&&		var entryCode = codeStack.pop ();
+            // >> machine
+		_1.js ();  // >> name
+		{
+		    state__stack.mark ();
+		    _2s.js (); // >> [state]
+		    state__stack.collapse ();
+		}
+		_3.js ();  // >> name
+		_4.js ();  // >> primitive
+		// name state name primitive
+		var machineName = name__stack.nth (1);
+		var defaultState = name__stack.nth (0);
+		var state = state__stack.nth (0);
 		var smCode = `
 function ${machineName} () {
   this.state = ${defaultState};
-  this.enter = function (next_state) {
-    switch (next_state) {
-      ${entryCode}
-    }
-  }
   this.step = function (event) {
     switch (this.state) {
-      ${stateCode}
+      ${state}
     };
  }
 }
 `;
-		codeStack.push (smCode);
+		name__stack.npop (2);
+		state__stack.npop (1);
+		machine__stack.push (smCode);
 	    },
 	    
-	    Header : function (_1, _2, _3) { _1.js (), _2.js (), _3.js (); }, // "machine" MachineName ":"
-	    Trailer : function (_1, _2) { _1.js (), _2.js ();}, // "end" "machine"
+	    Header : function (_1, _2, _3) {  // "machine" MachineName ":" // >> name
+		_1.js (); _2.js (); _3.js (); 
+		// # primitive name primitive
+		primitive__stack.npop (2);
+		// # name
+	    },
+	    Trailer : function (_1, _2) { _1.js (); _2.js (); primitive__stack.npop (2);}, // "end" "machine"
 	    
-	    State : function (_1, _2, _3, _4, _5s) {  // "state" StateName ":" EntrySection Transition*
-		_1.js (), _2.js (), _3.js (), _4.js (), _5s.js ();
-		var pair = _2.js ();
-		var name = pair.name;
-		var preamble = pair.preamble;
-		var entry = _4.js ();
-		var transitions = _5s.js ();
+	    State : function (_1, _2, _3, _4, _5s) {  
+		// "state" StateName ":" EntrySection Transition*
+		// >> entry step
+		_1.js (); _2.js (); _3.js (); _4.js ();
+		// # primary {StateName} primary entry
+		{
+		    transition__stack.mark ();
+		    _5s.js ();
+		    transition__collapse ();
+		};
+		// # primary {StateName} primary entry transition
+
+		var {length, value} = evalItems (_5s);
+		codeStack.squash (length);
+		var transitions = transitions__stack.top ();
+		var entry = entry__stack.top ();
+		var name = nameStack.nth (0);
 		var stepcode = `
       case ${name}:
 	switch (event.tag) {
@@ -199,62 +256,163 @@ case ${name}:
 ${entry}
 this.state = ${name};
 break;`;
-		return { preamble: preamble, step: stepcode, entry: entrycode, defaultState: "" };
+		entry__stack.npop (1);
+		transition__stack.npop (1);
+		nameStack.npop (1);
+		stepStack.push (stepcode);
+		entryStack.push (entrycode);
 	    },
-	    EntrySection : function (_1, _2, _3) {return _3.js ()}, // "entry" ":" string
-	    Transition : function (_1, _2, _3, _4, _5) { // "on" Name ":" "next" Name
-                var tagName = _2.js ().name;
-		var nextStateName = _5.js ().name;
+	    EntrySection : function (_1, _2, _3) { 
+		// "entry" ":" string 
+		// >> entry
+		_1.js (); _2.js (); _3.js ();
+		// # primitive primitive string
+		var s = string__stack.top ();
+		var eCode = [];
+		eCode.push (s);
+		eCode.push ("break;");
+
+		primitive__stack.npop (2);
+		string__stack.npop (1);
+		// #
+		entry__stack.push (eCode);
+		// # entry
+	    },
+	    Transition : function (_1, _2, _3, _4, _5) {
+		// "on" Name ":" "next" Name // >> transition
+		_1.js (); _2.js (); _3.js (); _4.js (); _5.js ();
+		// # primitive {Name} primitive primitive {Name}
+                var tagName = name__stack.nth (1);
+		var nextStateName = name__stack.nth (0);
 		var transitionCode = `
       case ${tagName}: 
 	this.enter (${nextStateName});
 	break;
 		`;
-		return transitionCode;
+		primitive__stack.npop (3);
+		name__stack.npop (2);
+		transition__stack.push (transitionCode);
 	    },
 	    
-	    Default : function (_1 ,_2, _3) { // "default" ":" Name
-		_1.js (), _2.js (), _3.js ();
-		preStack.push (`const ${nameStack.pop ()} = ${gensym ()};`);
+	    Default : function (_1 ,_2, _3) { // "default" ":" Name // >> {Name}
+		_1.js ();
+		_2.js ();
+		_3.js ();
+		// # primitive primitive name
+		primitive__stack.npop (2);
+		// # name
 	    },
 	    
-	    keyword : function (_1) { _1.js ()}, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default"
-	    InputPinNames : function (_1) {return _1.js ()}, // nameList
-	    OutputPinNames : function (_1) {return _1.js ()}, // nameList
-	    MachineName : function (_1) {return _1.js ().name}, // Name
-	    StateName : function (_1) {return _1.js ()}, // Name
-	    InputPinReference : function (_1) {return _1.js ().name}, // Name
-	    StateReference : function (_1) {return _1.js ().name}, // Name
-	    Name : function (_1) { // ~keyword id
-		var name = _1.js ();
-		nameCounter += 1;
-		var constant = `const ${name} = ${nameCounter};`;
-		return { preamble: constant, name: name };
+	    keyword : function (_1) { _1.js (); primary__endScope (); }, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default" // (primary) >> _
+	    InputPinNames : function (_1) { _1.js ()}, // nameList // >> {nameList}
+	    OutputPinNames : function (_1) { _1.js ()}, // nameList // >> {nameList}
+	    MachineName : function (_1) { _1.js ()}, // Name // (name) >> name
+	    StateName : function (_1) { _1.js ()}, // Name // (name) >> name
+	    InputPinReference : function (_1) {_1.js () }, // Name // (name) >> name
+	    StateReference : function (_1) { _1.js () }, // Name // (name) >> name
+	    Name : function (_1) { // match(~keyword id) / (id) >> name
+		_1.js ();
+		name__stack_from_id ();
 	    },
-	    nameList : function (_1s, _2s) { // (~keyword id delim)+
-		var consts = _1s.js ().map (name => {
-		    nameCounter += 1;
-		    return `const ${name} = ${nameCounter};`;
-		});
-		return consts.join ('\n');
+	    nameList : function (_1s, _2s) { // (~keyword id delim)+ // >> [pre]
+		{
+		    id__stack.mark ();
+		    _1s.js ();
+		    id__stack.collapse ();
+		};
+		{
+		    primitive__stack.mark ();
+		    _2s.js ();
+		    primitive__stack.collapse ();
+		};
+		// # id primitive
+		pre__stack.push (id);
+		// # id primitive pre
+		id__stack.npop (1);
+		primitive__stack.npop (1);
+		// # pre
 	    }, 
 	    
 	    
 	    
-	    id : function (_1, _2s) {  // firstId followId*
-		var name = `${_1.js ()}${_2s.js ().join ('')}` ;
-		return name;
+	    id : function (_1, _2s) {  // firstId followId* // >> name
+		_1.js ();
+		{
+		    char__stack.mark ();
+		    _2s.js ();
+		    char__stack.collapse ();
+		};
+		// # char [char]
+		var c = char__stack.nth (1);
+		var cs = char__stack.nth (0);
+		var name = `${c}${cs.join ('')}` ;
+		nameStack.push (name);  // >> name
+		char__stack.npop (2);
 	    },
-	    firstId : function (_1) {return _1.js ()}, // "A".."Z" | "a".."z" | "_"
-	    followId : function (_1) {return _1.js ()}, // firstId
+	    firstId : function (_1) { 
+		// match("A".."Z" | "a".."z" | "_") // >> char
+		_1.js ();
+		// # primitive
+		char__stack.push (primitive__stack.top ());
+		// # primitive char
+		primitive__stack.npop (1);
+		// # char
+	    },
+	    followId : function (_1) { // match(firstId)>>char  // >> char
+		_1.js ();
+		// # char
+	    },
+
+	    string : function (_1, _2s, _3) { // "\\"" stringChar* "\\"" //  >> string
+		_1.js ();  // primitive
+		{
+		    char__stack.mark ();
+		    _2s.js (); // Array[char]
+		    char__stack.collapse ();
+		}
+		_3.js ();  // primitive
+		// # primitive char primitive
+		string__stack.push (`${char__stack.top ().join ('')}`);
+		// # primitive char primitive string
+		primitive__stack.npop (2);
+		char__stack.npop (1);
+	    },
+	    stringchar : function (_1) { // escapedChar | anyChar // >> char
+		_1.js ();
+		// # char
+	    },
+	    escapedChar : function (_1, _2) { // "\\\\" any // >> char
+		_1.js ();
+		_2.js ();
+		// # primitive primitive
+		char__stack.push (primitive__stack.top ());
+		// # primitive primitive char
+		primitive__stack.npop (2);
+		// # char
+	    },
+	    anyStringChar : function (_1) { // match(~"\\"" any) // primitive >> char
+		_1.js ();
+		// # primitive
+		char__stack.push (primitive__stack.top ());
+		// # primitive char
+		primitive__stack.npop (1);
+		// # char
+	    },
 	    
-	    string : function (_1, _2s, _3) { return `${_2s.js ().join ('')}`; }, // "\\"" stringChar* "\\""
-	    escapedChar : function (_1, _2) { return _2.js (); }, // "\\\\" any
-	    anyStringChar : function (_1) {return _1.js ();}, // ~"\\"" any
-	    
-	    delim : function (_1s) {return _1s.js ().join (''); }, // (" " | "\\t" | "\\n")+
-	    
-	    _terminal: function () { return this.primitiveValue; }
+	    delim : function (_1s) { // match(" " | "\\t" | "\\n")+) // >> char
+		{
+		    primitive__stack.mark ();
+		    _1s.js (); // >> ArrayOf(primitive)
+		    primitive__stack.collapse ();
+		};
+		var value = primitive__stack.top ().join ('');
+		primitive__stack.npop (1);
+		char__stack.push (value); // >> charList
+	    },
+	
+	    _terminal: function () { // >> primitive
+		primitive__stack.push (this.primitiveValue); 
+	    }
 	});
     return semantics;
 }
@@ -264,25 +422,24 @@ var text = getNamedFile("-");
 var {parser, tree} = parse (text);
 var transpiler = createTranspiler (parser);
 
-resetStacks ();
 transpiler (tree).js ();
 
-console.log (preStack.toString () + codeStack.toString ());
+console.log (codeStack.squashToString ());
 
 // boilerplate
-console.log (`
- function fire (output, value) {
-  console.log ("Fire called: " + this.toString () + " output:" + output.toString () + " value:" + value.toString ());
- }
- function send (component, tag, value) {
-  component.step ( {tag, value} );
- }
- function inject (component, event) {
-  component.step (event);
- }
- var top = new Toggle ();
- inject (top, {tag: _in, value: true});
- inject (top, {tag: _in, value: true});
- inject (top, {tag: _in, value: true});
-`);
+// console.log (`
+//  function fire (output, value) {
+//   console.log ("Fire called: " + this.toString () + " output:" + output.toString () + " value:" + value.toString ());
+//  }
+//  function send (component, tag, value) {
+//   component.step ( {tag, value} );
+//  }
+//  function inject (component, event) {
+//   component.step (event);
+//  }
+//  var top = new Toggle ();
+//  inject (top, {tag: _in, value: true});
+//  inject (top, {tag: _in, value: true});
+//  inject (top, {tag: _in, value: true});
+// `);
 

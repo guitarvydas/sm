@@ -75,8 +75,6 @@ function getNamedFile (fname) {
 ///// an item can be a single item or a list (Array.isArray) //
 function stack () {
     this._stack = [];
-    this.beginScope = function () {};
-    this.endScope = function () { this._stack.pop (); };
     this.pop = function () { return this._stack.pop (); };
     this.top = function () { var index = this._stack.length - 1; return this._stack[index]; };
     this.nth = function (n) { var index = (this._stack.length - 1) - n; return this._stack[index]; };
@@ -120,15 +118,22 @@ function stack () {
 
 //////////// transpiler ////////
 
-var count__output;
-var name__output;
-var pre__output;
-var code__output;
-var entry__output;
-var step__output;
-var transition__output;
-var string__output;
-var primitive__output;
+var count__stack;
+var name__stack;
+var pre__stack;
+var code__stack;
+var entry__stack;
+var step__stack;
+var transition__stack;
+var string__stack;
+var primitive__stack;
+var char__stack;
+var entry__stack;
+var transition__stack;
+var id__stack;
+var pre__stack;
+var state__stack;
+var machine__stack;
 
 function resetStacks () { 
     count__stack = new stack ();
@@ -141,6 +146,13 @@ function resetStacks () {
     transition__stack = new stack ();
     string__stack = new stack ();
     primitive__stack = new stack ();
+    char__stack = new stack ();
+    entry__stack = new stack ();
+    transition__stack = new stack ();
+    id__stack = new stack ();
+    pre__stack = new stack ();
+    state__stack = new stack ();
+    machine_stack = new stack ();
 }
 
 function gen () {
@@ -177,7 +189,7 @@ function createTranspiler (parser) {
 	    
 	    NameSection : function (_1, _2, _3) { // "name" ":" Name // >> name
 		_1.js (); _2.js (); _3.js ();
-		primitive__npop (2);
+		primitive__stack.npop (2);
 	    },
 	    InputSection : function (_1, _2, _3) {  // "inputs" ":" InputPinNames
 		_1.js (); _2.js (); _3.js (); 
@@ -191,7 +203,7 @@ function createTranspiler (parser) {
 	    },
 	    
 	    MachineSection : function (_1, _2s, _3, _4) { // Header State+ Default Trailer
-            // >> machine
+		// >> machine
 		_1.js ();  // >> name
 		{
 		    state__stack.mark ();
@@ -231,19 +243,17 @@ function ${machineName} () {
 		// "state" StateName ":" EntrySection Transition*
 		// >> entry step
 		_1.js (); _2.js (); _3.js (); _4.js ();
-		// # primary {StateName} primary entry
+		// # primitive {StateName} primitive entry
 		{
 		    transition__stack.mark ();
 		    _5s.js ();
-		    transition__collapse ();
+		    transition__stack.collapse ();
 		};
-		// # primary {StateName} primary entry transition
+		// # primitive {StateName} primitive entry transition
 
-		var {length, value} = evalItems (_5s);
-		codeStack.squash (length);
-		var transitions = transitions__stack.top ();
+		var transitions = transition__stack.top ();
 		var entry = entry__stack.top ();
-		var name = nameStack.nth (0);
+		var name = name__stack.nth (0);
 		var stepcode = `
       case ${name}:
 	switch (event.tag) {
@@ -258,9 +268,10 @@ this.state = ${name};
 break;`;
 		entry__stack.npop (1);
 		transition__stack.npop (1);
-		nameStack.npop (1);
-		stepStack.push (stepcode);
-		entryStack.push (entrycode);
+		name__stack.npop (1);
+		primitive__stack.npop (2);
+		step__stack.push (stepcode);
+		entry__stack.push (entrycode);
 	    },
 	    EntrySection : function (_1, _2, _3) { 
 		// "entry" ":" string 
@@ -303,16 +314,18 @@ break;`;
 		// # name
 	    },
 	    
-	    keyword : function (_1) { _1.js (); primary__endScope (); }, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default" // (primary) >> _
+	    keyword : function (_1) { _1.js (); primitive__stack.npop (1); }, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default" //  >> primitive
 	    InputPinNames : function (_1) { _1.js ()}, // nameList // >> {nameList}
 	    OutputPinNames : function (_1) { _1.js ()}, // nameList // >> {nameList}
-	    MachineName : function (_1) { _1.js ()}, // Name // (name) >> name
-	    StateName : function (_1) { _1.js ()}, // Name // (name) >> name
-	    InputPinReference : function (_1) {_1.js () }, // Name // (name) >> name
-	    StateReference : function (_1) { _1.js () }, // Name // (name) >> name
-	    Name : function (_1) { // match(~keyword id) / (id) >> name
+	    MachineName : function (_1) { _1.js ()}, // Name // >> name
+	    StateName : function (_1) { _1.js ()}, // Name //  >> name
+	    InputPinReference : function (_1) {_1.js () }, // Name // >> name
+	    StateReference : function (_1) { _1.js () }, // Name //  >> name
+	    Name : function (_1) { // match(~keyword id) /  >> name
 		_1.js ();
-		name__stack_from_id ();
+		var id = id__stack.top ();
+		name__stack.push (id);
+		id__stack.npop (1);
 	    },
 	    nameList : function (_1s, _2s) { // (~keyword id delim)+ // >> [pre]
 		{
@@ -326,7 +339,7 @@ break;`;
 		    primitive__stack.collapse ();
 		};
 		// # id primitive
-		pre__stack.push (id);
+		pre__stack.push (`const ${id__stack.top ()} = ${gen ()};`);
 		// # id primitive pre
 		id__stack.npop (1);
 		primitive__stack.npop (1);
@@ -346,7 +359,7 @@ break;`;
 		var c = char__stack.nth (1);
 		var cs = char__stack.nth (0);
 		var name = `${c}${cs.join ('')}` ;
-		nameStack.push (name);  // >> name
+		name__stack.push (name);  // >> name
 		char__stack.npop (2);
 	    },
 	    firstId : function (_1) { 
@@ -377,7 +390,7 @@ break;`;
 		primitive__stack.npop (2);
 		char__stack.npop (1);
 	    },
-	    stringchar : function (_1) { // escapedChar | anyChar // >> char
+	    stringChar : function (_1) { // escapedChar | anyChar // >> char
 		_1.js ();
 		// # char
 	    },
@@ -409,7 +422,7 @@ break;`;
 		primitive__stack.npop (1);
 		char__stack.push (value); // >> charList
 	    },
-	
+	    
 	    _terminal: function () { // >> primitive
 		primitive__stack.push (this.primitiveValue); 
 	    }
@@ -417,15 +430,19 @@ break;`;
     return semantics;
 }
 ////////////
-
+console.log (0);
 var text = getNamedFile("-");
 var {parser, tree} = parse (text);
+console.log (1);
 var transpiler = createTranspiler (parser);
 
+console.log (2);
 transpiler (tree).js ();
 
-console.log (codeStack.squashToString ());
+console.log (3);
+console.log (code__stack.squashToString ());
 
+console.log (4);
 // boilerplate
 // console.log (`
 //  function fire (output, value) {

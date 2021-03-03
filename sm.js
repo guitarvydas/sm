@@ -61,6 +61,7 @@ function parse (text) {
 }
 
 
+const { log } = require('console');
 var fs = require ('fs');
 
 function getNamedFile (fname) {
@@ -79,18 +80,58 @@ function trimBrackets (s) {
         .replace (/\]/g, '');
 }
 
+function initialConditions () {
+    this._icStack = [];
+    this.icpush = function (n) {
+	this._icStack.push (n);
+    };
+    this._checkUnderflow = function () {
+	if (this._icStack.length <= 0) {
+	    throw "initialConditions: can't happen";
+	};
+    };
+    this.icpop = function () {
+	this._checkUnderflow ();
+	this._icStack.pop ();
+	this.dup = function () { 
+	    this._checkUnderflow ();
+	    var val = this._icStack.pop ();
+	    this._icStack.push (val);
+	    this._icStack.push (val);
+	}
+    };
+    this.top = function () {
+	this._checkUnderflow ();
+	var index = this._icStack.length - 1;
+	return this._icStack[index];
+    };
+}
+
 function stackChecker () {
     this._list = [];
     this.add = function (name) { this._list.push (name); };
     this.exit = function (obj) { 
         this._list.forEach (stack  => {
-            stack.check (obj);
+	    stack.exitCheck (obj);
+	    stack.exit (obj);
         })
     };
     this.enter = function () {
         this._list.forEach (stack  => {
-            stack.memo ();
+	    stack.enter ();
         })
+    };
+    this.recycle = function (ty) {
+        // ignore ty
+        this._list.forEach (stack  => {
+	    stack.recycle ();
+        });
+    };
+    this.debug = function () {
+        var s = this._list.map (stack  => {
+	    return stack.lengthAsString ();
+        });
+        console.log (s.join(''));
     };
 }
 
@@ -100,12 +141,33 @@ var sc = new stackChecker ();
 function stack (ty) {
     this._stack = [];
     this._type = ty;
+    this._mark = [];
+    this.lengthAsString = function () { 
+	if (this._stack.length === 0) {
+	    return "";
+	} else {
+	    return `${this._type}[${this._stack.length}]`; 
+	};
+    };
     this.pop = function () { 
+        if (this._stack.length <= 0) {
+	    throw "pop: can't happen";
+        };
         return this._stack.pop (); 
     };
     this.top = function () { var index = this._stack.length - 1; return this._stack[index]; };
-    this.nth = function (n) { var index = (this._stack.length - 1) - n; return this._stack[index]; };
-    this.npop = function (n) { while (n > 0) { this.pop (); n -= 1; }};
+    this.nth = function (n) { 
+        var index = (this._stack.length - 1) - n; 
+        if (index < 0) {
+	    throw "nth: can't happen";
+        }
+        return this._stack[index]; };
+    this.npop = function (n) { 
+        while (n > 0) { 
+	    this.pop (); 
+	    n -= 1; 
+        }
+    };
     this.push = function (val) { this._stack.push (val); };
     this.arraypush = function (val) { this._stack.push (val); };
     this.depth = function () { return this._stack.length; };
@@ -113,8 +175,8 @@ function stack (ty) {
         // collect top n items into a list, pop them from the stack, push the list onto the stack
         var a = new Array ();
         while (n > 0) {
-            a.push (this._stack.pop ());
-            n -= 1;
+	    a.push (this._stack.pop ());
+	    n -= 1;
         }
         a.reverse ();
         this.push (a);
@@ -128,54 +190,58 @@ function stack (ty) {
         var as = this._stack.map (a => { var n = i; i += 1; return `[${n}]: ` + a.toString (); });
         return as.reverse ().join ('\n');
     };
-    this.mark = function () { this._mark = this._stack.length - 1; };
+    this.mark = function () { this._mark.push (this._stack.length - 1); };
+    this._marktop = function () { 
+        var index = this._mark.length - 1;
+        if (index < 0) { throw "_marktop: can't happen"};
+        return this._mark[index];
+    };
     this.collapse = function () {
         // collapse all entries into a single array, between here and mark
         var a = [];
         var i = this._stack.length - 1;
-        while (i >= this._mark) {
-            a.push (this.pop());
-            i -= 1;
+        if (i > this._marktop ()) {
+	    while (i > this._marktop ()) {
+                a.push (this._stack.pop());
+                i -= 1;
+	    };  
+	    this.arraypush (a);
         };
-        this.arraypush (a);
-    }
-    this._memo = [];
-    this.memo = function () { this._memo.push (this._stack.length); };
-    this._memotop = function () {
-        var index = this._memo.length - 1;
-        if (index < 0) {
-            throw "_memotop: can't happen";
-        };
-        return this._memo[index];
+        this._mark.pop ();
     };
-    this._fail = function (n) { 
-        console.log (`${this._type} expected ${this._difference ()} entries but there are ${this._stack.length} entries`);
+    this._initialConditions = new initialConditions ();
+    this._fail = function (msg) { 
+        console.log (msg);
         throw '** stack error **';
     };
     this._forMe = function (obj) { return (this._type in obj); };
-    this._difference = function () { 
-        var diff = this._stack.length - this._memotop ();
-        if (diff < 0) { 
-            console.log (this._stack.length); 
-            console.log (this._memotop ()); 
-            throw "can't happen"; 
-        };
-        return diff;
+    this._checkChange = function (n) {
+	var currentDepth = this._stack.length;
+	if (currentDepth) {
+	    var currentDiff = currentDepth - this._initialConditions.top ();
+	    if (currentDiff !== n) {
+		this._fail (`** ${this._type} expected a change of ${n} but got ${currentDiff} (depth=${currentDepth})`);
+	    }
+	}
     };
-    this.check = function (obj) { 
-        if (null === this._memo) {
-            throw "_memo is null";
-        };  // should not happen - memo() must be called before check()
-        if (this._forMe (obj)) {
-            console.log (this._type);
-            var n = obj[this._type];
-            if (this._difference () !== n) { 
-                this._fail (n);
-            };  
-            this._memo.pop ();
-        } else {
-            if (0 !== this._difference ()) { this._fail (); };
-        }
+    
+    this.enter = function () { 
+	this._initialConditions.icpush (this._stack.length);
+    };
+    this.recycle = function () { 
+	this._initialConditions.dup ();
+    };
+    this.exit = function (obj) { 
+	/*ignore obj*/ 
+	this._initialConditions.icpop ();
+    };
+    this.exitCheck = function (obj) {
+	if (this._forMe (obj)) {
+	    var expected = obj[this._type];
+	    this._checkChange (expected);
+	} else {
+	    this._checkChange (0);
+	};
     };
 }
 
@@ -260,17 +326,21 @@ function createTranspiler (parser) {
     semantics.addOperation (
         "js",
         {
-            Main : function (_1) { // StateMachine // >> code
+	    Main : function (_1) { // StateMachine // >> code
                 resetStacks ();
                 sc.enter ();
                 _1.js ();
+                sc.recycle ('code');
                 sc.exit ({code: 1});
-            },
-            
-            StateMachine : function (_1, _2, _3, _4) {
+	    },
+	    
+	    StateMachine : function (_1, _2, _3, _4) {
                 // NameSection InputSection OutputSection MachineSection // >> code
                 sc.enter ();
-                _1.js (); _2.js (); _3.js (); _4.js ();
+                _1.js (); 
+                _2.js (); 
+                _3.js (); 
+                _4.js ();
                 var name = name__stack.top ();
                 var inputs = pre__stack.nth (1);
                 var outputs = pre__stack.nth (0);
@@ -282,17 +352,18 @@ function createTranspiler (parser) {
                 pre__stack.npop (2);
                 machine__stack.npop (1);
                 sc.exit ({code: 1});
-            },
-            
-            NameSection : function (_1, _2, _3) { // "name" ":" Name // >> name
+	    },
+	    
+	    NameSection : function (_1, _2, _3) { // "name" ":" Name // >> name
                 sc.enter ();
                 _1.js (); 
                 _2.js (); 
                 _3.js ();
                 primitive__stack.npop (2);
+                sc.recycle ('name');
                 sc.exit ({name: 1});
-            },
-            InputSection : function (_1, _2, _3) {  // "inputs" ":" InputPinNames
+	    },
+	    InputSection : function (_1, _2, _3) {  // "inputs" ":" InputPinNames
                 sc.enter ();
                 _1.js (); 
                 _2.js (); 
@@ -300,8 +371,8 @@ function createTranspiler (parser) {
                 primitive__stack.npop (2); 
                 // # pre
                 sc.exit ({pre: 1});
-            },
-            OutputSection : function (_1, _2, _3) { // "outputs" ":" OutputPinNames
+	    },
+	    OutputSection : function (_1, _2, _3) { // "outputs" ":" OutputPinNames
                 sc.enter ();
                 _1.js (); 
                 _2.js (); 
@@ -309,16 +380,16 @@ function createTranspiler (parser) {
                 primitive__stack.npop (2); 
                 // # pre
                 sc.exit ({pre: 1});
-            },
-            
-            MachineSection : function (_1, _2s, _3, _4) { // Header State+ Default Trailer
+	    },
+	    
+	    MachineSection : function (_1, _2s, _3, _4) { // Header State+ Default Trailer
                 // >> machine
                 sc.enter ();
                 _1.js ();  // >> name
                 {
-                    state__stack.mark ();
-                    _2s.js (); // >> [state]
-                    state__stack.collapse ();
+		    state__stack.mark ();
+		    _2s.js (); // >> [state]
+		    state__stack.collapse ();
                 }
                 _3.js ();  // >> name
                 _4.js ();  // >> primitive
@@ -340,33 +411,33 @@ function createTranspiler (parser) {
                 state__stack.npop (1);
                 machine__stack.push (smCode);
                 sc.exit ({machine: 1});
-            },
-            
-            Header : function (_1, _2, _3) {  // "machine" MachineName ":" // >> name
+	    },
+	    
+	    Header : function (_1, _2, _3) {  // "machine" MachineName ":" // >> name
                 _1.js (); _2.js (); _3.js (); 
                 // # primitive name primitive
                 primitive__stack.npop (2);
                 // # name
                 sc.exit ({name: 1});
-            },
-            Trailer : function (_1, _2) { 
+	    },
+	    Trailer : function (_1, _2) { 
                 sc.enter ();
                 _1.js (); 
                 _2.js (); 
                 primitive__stack.npop (2);
                 sc.exit ({});
-            }, // "end" "machine"
-            
-            State : function (_1, _2, _3, _4, _5s) {  
+	    }, // "end" "machine"
+	    
+	    State : function (_1, _2, _3, _4, _5s) {  
                 // "state" StateName ":" EntrySection Transition*
                 // >> entry step
                 sc.enter ();
                 _1.js (); _2.js (); _3.js (); _4.js ();
                 // # primitive {StateName} primitive entry
                 {
-                    transition__stack.mark ();
-                    _5s.js ();
-                    transition__stack.collapse ();
+		    transition__stack.mark ();
+		    _5s.js ();
+		    transition__stack.collapse ();
                 };
                 // # primitive {StateName} primitive entry transition
 
@@ -392,9 +463,9 @@ function createTranspiler (parser) {
                 step__stack.push (stepcode);
                 entry__stack.push (entrycode);
                 sc.exit ({entry:1, step: 1});
-            },
+	    },
 
-            EntrySection : function (_1, _2, _3) { 
+	    EntrySection : function (_1, _2, _3) { 
                 // "entry" ":" string 
                 // >> entry
                 sc.enter ();
@@ -408,9 +479,9 @@ function createTranspiler (parser) {
                 string__stack.npop (1);
                 entry__stack.push (eCode);
                 sc.exit ({entry: 1});
-            },
+	    },
 
-            Transition : function (_1, _2, _3, _4, _5) {
+	    Transition : function (_1, _2, _3, _4, _5) {
                 // "on" Name ":" "next" Name // >> transition
                 sc.enter ();
                 _1.js (); _2.js (); _3.js (); _4.js (); _5.js ();
@@ -426,9 +497,9 @@ function createTranspiler (parser) {
                 name__stack.npop (2);
                 transition__stack.push (transitionCode);
                 sc.exit ({transition: 1});
-            },
-            
-            Default : function (_1 ,_2, _3) { // "default" ":" Name // >> {Name}
+	    },
+	    
+	    Default : function (_1 ,_2, _3) { // "default" ":" Name // >> {Name}
                 sc.enter ();
                 _1.js ();
                 _2.js ();
@@ -437,154 +508,162 @@ function createTranspiler (parser) {
                 primitive__stack.npop (2);
                 // # name
                 sc.exit ({name: 1});
-            },
-            
-            keyword : function (_1) { 
+	    },
+	    
+	    keyword : function (_1) { 
                 sc.enter ();
                 _1.js (); 
                 primitive__stack.npop (1); 
                 sc.exit ();
-            }, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default" //  >> primitive
-            InputPinNames : function (_1) { 
+	    }, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default" //  >> primitive
+	    InputPinNames : function (_1) { 
+                sc.enter ();
+                _1.js ()
+                sc.debug ();
+                sc.exit ({name: 1});
+	    }, // nameList // >> {nameList}
+	    OutputPinNames : function (_1) { 
+                sc.enter ();
+                _1.js ();
+                sc.exit ({name: 1});
+	    }, // nameList // >> {nameList}
+	    MachineName : function (_1) { 
+                sc.enter ();
+                _1.js ();
+                sc.exit ({name: 1});
+	    }, // Name // >> name
+	    StateName : function (_1) {
                 sc.enter ();
                 _1.js ()
                 sc.exit ({name: 1});
-            }, // nameList // >> {nameList}
-            OutputPinNames : function (_1) { 
+	    }, // Name //  >> name
+	    InputPinReference : function (_1) {
                 sc.enter ();
                 _1.js ();
                 sc.exit ({name: 1});
-            }, // nameList // >> {nameList}
-            MachineName : function (_1) { 
+	    }, // Name // >> name
+	    StateReference : function (_1) { 
                 sc.enter ();
                 _1.js ();
                 sc.exit ({name: 1});
-            }, // Name // >> name
-            StateName : function (_1) {
-                sc.enter ();
-                 _1.js ()
-                sc.exit ({name: 1});
-            }, // Name //  >> name
-            InputPinReference : function (_1) {
-                sc.enter ();
-                _1.js ();
-                sc.exit ({name: 1});
-             }, // Name // >> name
-            StateReference : function (_1) { 
-                sc.enter ();
-                _1.js ();
-                sc.exit ({name: 1});
-            }, // Name //  >> name
-            Name : function (_1) { // match(~keyword id) /  >> name
+	    }, // Name //  >> name
+	    Name : function (_1) { // match(~keyword id) /  >> name
                 sc.enter ();
                 _1.js ();
                 var id = id__stack.top ();
                 name__stack.push (id);
                 id__stack.npop (1);
                 sc.exit ({name: 1});
-            },
-            nameList : function (_1s, _2s) { // (~keyword id delim)+ // >> [pre]
+	    },
+	    nameList : function (_1s, _2s) { // (~keyword id delim)+ // >> [pre]
                 sc.enter ();
                 {
-                    id__stack.mark ();
-                    _1s.js ();
-                    id__stack.collapse ();
+		    id__stack.mark ();
+		    _1s.js ();
+		    id__stack.collapse ();
                 };
+                sc.debug ();
                 {
-                    primitive__stack.mark ();
-                    _2s.js ();
-                    primitive__stack.collapse ();
+		    primitive__stack.mark ();
+		    _2s.js ();
+		    primitive__stack.collapse ();
                 };
+                sc.debug ();
+                char__stack.npop (1);
+                sc.debug ();
                 pre__stack.push (`const ${id__stack.top ()} = ${gen ()};`);
+                sc.debug ();
                 id__stack.npop (1);
-                primitive__stack.npop (1);
+                sc.debug ();
                 sc.exit ({pre: 1});
-            }, 
-            
-            
-            
-            id : function (_1, _2s) {  // firstId followId* // >> name
+	    }, 
+	    
+	    
+	    
+	    id : function (_1, _2s) {  // firstId followId* // >> name
                 sc.enter ();
                 _1.js ();
                 {
-                    char__stack.mark ();
-                    _2s.js ();
-                    char__stack.collapse ();
+		    char__stack.mark ();
+		    _2s.js ();
+		    char__stack.collapse ();
                 };
                 var c = char__stack.nth (1);
                 var cs = char__stack.nth (0);
                 var name = `${c}${cs.join ('')}` ;
-                name__stack.push (name);  // >> name
+                id__stack.push (name);  // >> name
                 char__stack.npop (2);
-                sc.exit ({name: 1});
-            },
-            firstId : function (_1) { 
-                sc.enter ();
+                sc.debug ();
+                sc.exit ({id: 1});
+	    },
+	    firstId : function (_1) { 
                 // match("A".."Z" | "a".."z" | "_") // >> char
+                sc.enter ();
                 _1.js ();
                 char__stack.push (primitive__stack.top ());
                 primitive__stack.npop (1);
                 sc.exit ({char: 1});
-            },
-            followId : function (_1) { // match(firstId) // >> char
+	    },
+	    followId : function (_1) { // match(firstId) // >> char
                 sc.enter ()
                 _1.js ();
+                sc.recycle ('char');
                 sc.exit ({char: 1});
-            },
+	    },
 
-            string : function (_1, _2s, _3) { // "\\"" stringChar* "\\"" //  >> string
+	    string : function (_1, _2s, _3) { // "\\"" stringChar* "\\"" //  >> string
                 sc.enter ();
                 _1.js ();  // primitive
                 {
-                    char__stack.mark ();
-                    _2s.js (); // Array[char]
-                    char__stack.collapse ();
+		    char__stack.mark ();
+		    _2s.js (); // Array[char]
+		    char__stack.collapse ();
                 }
                 _3.js ();  // primitive
                 string__stack.push (`${char__stack.top ().join ('')}`);
                 primitive__stack.npop (2);
                 char__stack.npop (1);
                 sc.exit ();
-            },
-            stringChar : function (_1) { // escapedChar | anyChar // >> char
+	    },
+	    stringChar : function (_1) { // escapedChar | anyChar // >> char
                 sc.enter ();
                 _1.js ();
                 sc.exit ({char: 1});
-            },
-            escapedChar : function (_1, _2) { // "\\\\" any // >> char
+	    },
+	    escapedChar : function (_1, _2) { // "\\\\" any // >> char
                 sc.enter ();
                 _1.js ();
                 _2.js ();
                 char__stack.push (primitive__stack.top ());
                 primitive__stack.npop (2);
                 sc.exit ({char: 1});
-            },
-            anyStringChar : function (_1) { // match(~"\\"" any) // >> char
+	    },
+	    anyStringChar : function (_1) { // match(~"\\"" any) // >> char
                 sc.enter ();
                 _1.js ();
                 char__stack.push (primitive__stack.top ());
                 primitive__stack.npop (1);
                 sc.exit ({char: 1});
-            },
-            
-            delim : function (_1s) { // match(" " | "\\t" | "\\n")+) // >> char
+	    },
+	    
+	    delim : function (_1s) { // match(" " | "\\t" | "\\n")+) // >> char
                 sc.enter ();
                 {
-                    primitive__stack.mark ();
-                    _1s.js (); // >> ArrayOf(primitive)
-                    primitive__stack.collapse ();
+		    primitive__stack.mark ();
+		    _1s.js (); // >> ArrayOf(primitive)
+		    primitive__stack.collapse ();
                 };
                 var value = primitive__stack.top ().join ('');
                 primitive__stack.npop (1);
                 char__stack.push (value); // >> char
                 sc.exit ({char: 1});
-            },
-            
-            _terminal: function () { // >> primitive
+	    },
+	    
+	    _terminal: function () { // >> primitive
                 sc.enter ();
                 primitive__stack.push (this.primitiveValue);
                 sc.exit ({primitive: 1});
-            }
+	    }
         });
     return semantics;
 }

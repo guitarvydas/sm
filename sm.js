@@ -281,7 +281,6 @@ var transition__stack;
 var string__stack;
 var primitive__stack;
 var char__stack;
-var transition__stack;
 var id__stack;
 var state__stack;
 var machine__stack;
@@ -430,8 +429,8 @@ function createTranspiler (parser) {
                 var mCode = `
                     function ${machineName} () {
                         this.state = ${defaultState};
-                        this.enter = function (event) {
-                        switch (this.state) {
+                        this.enter = function (nextState) {
+                        switch (nextState) {
                             ${entryCode}
                           };
                         };
@@ -518,13 +517,11 @@ function createTranspiler (parser) {
                 sc.enter ('EntrySection');
                 _1.js (); _2.js (); _3.js ();
                 var s = string__stack.top ();
-                var eCode = [];
-                eCode.push (s);
-                eCode.push ("break;");
+                var eCode = s;
 
                 primitive__stack.npop (2);
                 string__stack.npop (1);
-                entry__stack.push (eCode.join ('\n'));
+                entry__stack.push (s);
                 sc.exit ('EntrySection',{entry: 1});
             },
 
@@ -758,8 +755,8 @@ console.log (code__stack.squashToString ());
 
 // boilerplate
 console.log (`
- function fire (output, value) {
-  console.log ("Fire called: " + this.toString () + " output:" + output.toString () + " value:" + value.toString ());
+ function fire (outputPort, value) {
+  console.log ("Fire called: " + this.toString () + " output port:" + outputPort.toString () + " value:" + value.toString ());
  }
  function send (component, tag, value) {
   component.step ( {tag, value} );

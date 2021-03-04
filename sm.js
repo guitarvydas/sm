@@ -110,22 +110,34 @@ function initialConditions () {
 function stackChecker () {
     this._list = [];
     this.add = function (name) { this._list.push (name); };
-    this.exit = function (obj) { 
-        this._list.forEach (stack  => {
-            stack.exitCheck (obj);
-            stack.exit (obj);
-        })
+    this._depth = 0;
+    this._spaces = function () {
+	var i = this._depth;
+	while (i > 0) {
+	    process.stdout.write (' ');
+	    i -= 1;
+	}
     };
-    this.enter = function () {
+    this.enter = function (name) {
+	if (name[0] != "_") {
+	    this._spaces ();
+	    console.log ("enter: " + name);
+	};
+	this._depth += 1;
         this._list.forEach (stack  => {
             stack.enter ();
         })
     };
-    this.recycle = function (ty) {
-        // ignore ty
+    this.exit = function (name, obj) {
+	if (name[0] != "_") {
+	    this._spaces ();
+	    console.log ("exit: " + name);
+	};
         this._list.forEach (stack  => {
-            stack.recycle ();
-        });
+            stack.exitCheck (obj);
+            stack.exit (obj);
+        })
+	this._depth -= 1;
     };
     this.debug = function () {
         var s = this._list.map (stack  => {
@@ -226,9 +238,6 @@ function stack (ty) {
     this.enter = function () { 
         this._initialConditions.push (this._currentDepth ());
     };
-    this.recycle = function () { 
-        this._initialConditions.dup ();
-    };
     this.exit = function (obj) { 
         /*ignore obj*/ 
         this._initialConditions.pop ();
@@ -327,19 +336,25 @@ function createTranspiler (parser) {
         {
             Main : function (_1) { // StateMachine // >> code
                 resetStacks ();
-                sc.enter ();
+                sc.enter ('Main');
                 _1.js ();
-                sc.recycle ('code');
-                sc.exit ({code: 1});
+                var c = code__stack.top ();
+                code__stack.pop ();
+                code__stack.push (c);
+                sc.exit ('Main', {code: 1});
             },
             
             StateMachine : function (_1, _2, _3, _4) {
                 // NameSection InputSection OutputSection MachineSection // >> code
-                sc.enter ();
+                sc.enter ('StateMachine');
                 _1.js (); 
+                sc.debug ();
                 _2.js (); 
+                sc.debug ();
                 _3.js (); 
+                sc.debug ();
                 _4.js ();
+                sc.debug ();
                 var name = name__stack.top ();
                 var inputs = pre__stack.nth (1);
                 var outputs = pre__stack.nth (0);
@@ -350,40 +365,56 @@ function createTranspiler (parser) {
                 name__stack.npop (1);
                 pre__stack.npop (2);
                 machine__stack.npop (1);
-                sc.exit ({code: 1});
+                sc.exit ('StateMachine', {code: 1});
             },
             
             NameSection : function (_1, _2, _3) { // "name" ":" Name // >> name
-                sc.enter ();
+                sc.enter ('NameSection');
                 _1.js (); 
                 _2.js (); 
                 _3.js ();
                 primitive__stack.npop (2);
-                sc.recycle ('name');
-                sc.exit ({name: 1});
+                var nm = name__stack.top ();
+                name__stack.npop (1);
+                name__stack.push (nm);
+                sc.exit ('NameSection', {name: 1});
             },
             InputSection : function (_1, _2, _3) {  // "inputs" ":" InputPinNames
-                sc.enter ();
+                sc.enter ('InputSection');
                 _1.js (); 
+                sc.debug ();
                 _2.js (); 
-                _3.js (); 
+                sc.debug ();
+                _3.js ();
+                sc.debug ();
+                var p = pre__stack.top ();
+                pre__stack.npop (1);
+                pre__stack.push (p);
+                sc.debug ();
                 primitive__stack.npop (2); 
-                // # pre
-                sc.exit ({pre: 1});
+                sc.debug ();
+                sc.exit ('InputSection', {pre: 1});
+                sc.debug ();
             },
             OutputSection : function (_1, _2, _3) { // "outputs" ":" OutputPinNames
-                sc.enter ();
+                sc.enter ('OutputSection');
+                sc.debug ();
                 _1.js (); 
+                sc.debug ();
                 _2.js (); 
+                sc.debug ();
                 _3.js (); 
+                sc.debug ();
+                var p = pre__stack.top ();
+                pre__stack.npop (1);
+                pre__stack.push (p);
                 primitive__stack.npop (2); 
-                // # pre
-                sc.exit ({pre: 1});
+                sc.exit ('OutputSection', {pre: 1});
             },
             
             MachineSection : function (_1, _2s, _3, _4) { // Header State+ Default Trailer
                 // >> machine
-                sc.enter ();
+                sc.enter ('MachineSection');
                 _1.js ();  // >> name
                 {
                     state__stack.mark ();
@@ -409,28 +440,32 @@ function createTranspiler (parser) {
                 name__stack.npop (2);
                 state__stack.npop (1);
                 machine__stack.push (smCode);
-                sc.exit ({machine: 1});
+                sc.exit ('MachineSection', {machine: 1});
             },
             
             Header : function (_1, _2, _3) {  // "machine" MachineName ":" // >> name
+		sc.enter ('Header');
                 _1.js (); _2.js (); _3.js (); 
                 // # primitive name primitive
                 primitive__stack.npop (2);
                 // # name
-                sc.exit ({name: 1});
+                var n = name__stack.top ();
+                name__stack.npop (1);
+                name__stack.push (n);
+                sc.exit ('Header', {name: 1});
             },
             Trailer : function (_1, _2) { 
-                sc.enter ();
+                sc.enter ('Trailer');
                 _1.js (); 
                 _2.js (); 
                 primitive__stack.npop (2);
-                sc.exit ({});
+                sc.exit ('Trailer',{});
             }, // "end" "machine"
             
             State : function (_1, _2, _3, _4, _5s) {  
                 // "state" StateName ":" EntrySection Transition*
                 // >> entry step
-                sc.enter ();
+                sc.enter ('State');
                 _1.js (); _2.js (); _3.js (); _4.js ();
                 // # primitive {StateName} primitive entry
                 {
@@ -461,13 +496,13 @@ function createTranspiler (parser) {
                 primitive__stack.npop (2);
                 step__stack.push (stepcode);
                 entry__stack.push (entrycode);
-                sc.exit ({entry:1, step: 1});
+                sc.exit ('State', {entry:1, step: 1});
             },
 
             EntrySection : function (_1, _2, _3) { 
                 // "entry" ":" string 
                 // >> entry
-                sc.enter ();
+                sc.enter ('EntrySection');
                 _1.js (); _2.js (); _3.js ();
                 var s = string__stack.top ();
                 var eCode = [];
@@ -477,12 +512,12 @@ function createTranspiler (parser) {
                 primitive__stack.npop (2);
                 string__stack.npop (1);
                 entry__stack.push (eCode);
-                sc.exit ({entry: 1});
+                sc.exit ('EntrySection',{entry: 1});
             },
 
             Transition : function (_1, _2, _3, _4, _5) {
                 // "on" Name ":" "next" Name // >> transition
-                sc.enter ();
+                sc.enter ('Transition');
                 _1.js (); _2.js (); _3.js (); _4.js (); _5.js ();
                 // # primitive {Name} primitive primitive {Name}
                 var tagName = name__stack.nth (1);
@@ -495,68 +530,96 @@ function createTranspiler (parser) {
                 primitive__stack.npop (3);
                 name__stack.npop (2);
                 transition__stack.push (transitionCode);
-                sc.exit ({transition: 1});
+                sc.exit ('Transition',{transition: 1});
             },
             
             Default : function (_1 ,_2, _3) { // "default" ":" Name // >> {Name}
-                sc.enter ();
+                sc.enter ('Default');
                 _1.js ();
                 _2.js ();
                 _3.js ();
                 // # primitive primitive name
                 primitive__stack.npop (2);
                 // # name
-                sc.exit ({name: 1});
+                var n = name__stack.top ();
+                name__stack.npop (1);
+                name__stack.push (n);
+                sc.exit ('Default',{name: 1});
             },
             
             keyword : function (_1) { 
-                sc.enter ();
+                sc.enter ('keyword');
                 _1.js (); 
                 primitive__stack.npop (1); 
-                sc.exit ();
+                sc.exit ('keyword',{});
             }, // "machine" | "name" | "inputs" | "outputs" | "end" | "state" | "entry" | "on" | "next" | "default" //  >> primitive
             InputPinNames : function (_1) { 
-                sc.enter ();
+                sc.enter ('InputNames');
+                sc.debug ();
                 _1.js ()
-                sc.recycle ('pre');
-                sc.exit ({pre: 1});
+                sc.debug ();
+                var p = pre__stack.top ();
+                pre__stack.npop (1);
+                pre__stack.push (p);
+                sc.debug ();
+                sc.exit ('InputNames', {pre: 1});
+                sc.debug ();
             }, // nameList // >> {nameList}
             OutputPinNames : function (_1) { 
-                sc.enter ();
+                sc.enter ('OutputNames');
+                sc.debug ();
                 _1.js ();
-                sc.recycle ('pre');
-                sc.exit ({pre: 1});
+                sc.debug ();
+                var p = pre__stack.top ();
+                pre__stack.npop (1);
+                pre__stack.push (p);
+                sc.exit ('OutputNames',{pre: 1});
             }, // nameList // >> {nameList}
             MachineName : function (_1) { 
-                sc.enter ();
+                sc.enter ('MachineName');
+                sc.debug ();
                 _1.js ();
-                sc.exit ({name: 1});
+                sc.debug ();
+                var n = name__stack.top ();
+                name__stack.npop (1);
+                name__stack.push (n);
+                sc.exit ('MachineName',{name: 1});
             }, // Name // >> name
             StateName : function (_1) {
-                sc.enter ();
+                sc.enter ('StateName');
                 _1.js ()
-                sc.exit ({name: 1});
+                var n = name__stack.top ();
+                name__stack.npop (1);
+                name__stack.push (n);
+                sc.exit ('StateName',{name: 1});
             }, // Name //  >> name
             InputPinReference : function (_1) {
-                sc.enter ();
+                sc.enter ('InputReference');
                 _1.js ();
-                sc.exit ({name: 1});
+                var n = name__stack.top ();
+                name__stack.npop (1);
+                name__stack.push (n);
+                sc.exit ('InputReference',{name: 1});
             }, // Name // >> name
             StateReference : function (_1) { 
-                sc.enter ();
+                sc.enter ('StateReference');
                 _1.js ();
-                sc.exit ({name: 1});
+                var n = name__stack.top ();
+                name__stack.npop (1);
+                name__stack.push (n);
+                sc.exit ('StateReference',{name: 1});
             }, // Name //  >> name
             Name : function (_1) { // match(~keyword id) /  >> name
-                sc.enter ();
+                sc.enter ('Name');
                 _1.js ();
                 var id = id__stack.top ();
                 name__stack.push (id);
                 id__stack.npop (1);
-                sc.exit ({name: 1});
+                sc.exit ('Name',{name: 1});
             },
             nameList : function (_1s, _2s) { // (~keyword id delim)+ // >> [pre]
-                sc.enter ();
+                sc.enter ('namelist');
+                sc.debug ();
                 {
                     id__stack.mark ();
                     _1s.js ();
@@ -570,19 +633,15 @@ function createTranspiler (parser) {
                 };
                 sc.debug ();
                 char__stack.npop (1);
-                sc.debug ();
                 pre__stack.push (`const ${id__stack.top ()} = ${gen ()};`);
-                sc.debug ();
                 id__stack.npop (1);
-                sc.debug ();
-                sc.exit ({pre: 1});
-                sc.debug ();
+                sc.exit ('namelist',{pre: 1});
             }, 
             
             
             
-            id : function (_1, _2s) {  // firstId followId* // >> name
-                sc.enter ();
+            id : function (_1, _2s) {  // firstId followId* // >> id
+                sc.enter ('id');
                 _1.js ();
                 {
                     char__stack.mark ();
@@ -592,26 +651,29 @@ function createTranspiler (parser) {
                 var c = char__stack.nth (1);
                 var cs = char__stack.nth (0);
                 var name = `${c}${cs.join ('')}` ;
-                id__stack.push (name);  // >> name
+                id__stack.push (name);
                 char__stack.npop (2);
-                sc.exit ({id: 1});
+                sc.exit ('id',{id: 1});
             },
             firstId : function (_1) { 
                 // match("A".."Z" | "a".."z" | "_") // >> char
-                sc.enter ();
+                sc.enter ('firstId');
                 _1.js ();
                 char__stack.push (primitive__stack.top ());
                 primitive__stack.npop (1);
-                sc.exit ({char: 1});
+                sc.exit ('firstId',{char: 1});
             },
             followId : function (_1) { // match(firstId) // >> char
-                sc.enter ()
+                sc.enter ('followId');
                 _1.js ();
-                sc.exit ({char: 1});
+		var c = char__stack.top ();
+		char__stack.npop (1);
+		char__stack.push (c);
+                sc.exit ('followId',{char: 1});
             },
 
             string : function (_1, _2s, _3) { // "\\"" stringChar* "\\"" //  >> string
-                sc.enter ();
+                sc.enter ('string');
                 _1.js ();  // primitive
                 {
                     char__stack.mark ();
@@ -622,31 +684,33 @@ function createTranspiler (parser) {
                 string__stack.push (`${char__stack.top ().join ('')}`);
                 primitive__stack.npop (2);
                 char__stack.npop (1);
-                sc.exit ();
+                sc.exit ('string',{});
             },
             stringChar : function (_1) { // escapedChar | anyChar // >> char
-                sc.enter ();
+                sc.enter ('stringChar');
                 _1.js ();
-                sc.exit ({char: 1});
+                var ch = char__stack.top ();
+                char__stack.push (ch);
+                sc.exit ('stringChar',{char: 1});
             },
             escapedChar : function (_1, _2) { // "\\\\" any // >> char
-                sc.enter ();
+                sc.enter ('escapedChar');
                 _1.js ();
                 _2.js ();
                 char__stack.push (primitive__stack.top ());
                 primitive__stack.npop (2);
-                sc.exit ({char: 1});
+                sc.exit ('escapedChar',{char: 1});
             },
             anyStringChar : function (_1) { // match(~"\\"" any) // >> char
-                sc.enter ();
+                sc.enter ('anyStringChar');
                 _1.js ();
                 char__stack.push (primitive__stack.top ());
                 primitive__stack.npop (1);
-                sc.exit ({char: 1});
+                sc.exit ('anyStringChar',{char: 1});
             },
             
             delim : function (_1s) { // match(" " | "\\t" | "\\n")+) // >> char
-                sc.enter ();
+                sc.enter ('delim');
                 {
                     primitive__stack.mark ();
                     _1s.js (); // >> ArrayOf(primitive)
@@ -655,13 +719,13 @@ function createTranspiler (parser) {
                 var value = primitive__stack.top ().join ('');
                 primitive__stack.npop (1);
                 char__stack.push (value); // >> char
-                sc.exit ({char: 1});
+                sc.exit ('delim',{char: 1});
             },
             
             _terminal: function () { // >> primitive
-                sc.enter ();
+                sc.enter ('_terminal');
                 primitive__stack.push (this.primitiveValue);
-                sc.exit ({primitive: 1});
+                sc.exit ('_terminal',{primitive: 1});
             }
         });
     return semantics;

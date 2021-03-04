@@ -1,3 +1,3 @@
 #!/bin/bash
-clear
+# clear
 node sm.js <toggle.scl

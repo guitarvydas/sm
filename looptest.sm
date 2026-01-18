@@ -1,0 +1,47 @@
+{
+    'idle'
+    {}
+    {
+      if x < 0 {
+          %next 'wait for zero recrossing' 
+      } elif x > self.width {
+          %next 'wait for w recrossing' 
+      } else {
+          Loop ()
+      }
+    }
+    {}
+}
+
+{
+    'wait for zero recrossing'
+    {
+      Reverse ()
+      Loop ()
+    }
+    {
+      if x >= 0 {
+	  Loop ()
+	  %next 'idle' 
+      }
+    }
+    {}
+}
+
+{
+    'wait for w recrossing'
+    {
+        Reverse ()
+        Loop ()
+    }
+    {
+      if x <= self.width {
+	  Loop ()
+	  %next 'idle' 
+      }
+    }
+    {}
+}
+
+
+

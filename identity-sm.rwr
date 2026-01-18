@@ -1,0 +1,12 @@
+% rewrite sm {
+  Main [State+] = ‛«State»’
+  State [lb name Enter Step Exit rb] = ‛\n«lb»«name»«Enter»«Step»«Exit»«rb»’
+  Enter [lb stuff* rb] = ‛\n«lb»«stuff»«rb»’
+  Step [lb stuff* rb] = ‛\n«lb»«stuff»«rb»’
+  Exit [lb stuff* rb] = ‛\n«lb»«stuff»«rb»’
+  stuff_rec [lb stuff* rb] = ‛«lb»«stuff»«rb»’
+  stuff_nextStatement [n] = ‛«b»’
+  stuff_other [c] = ‛«c»’
+  Next [_ lq cs* rq] = ‛«_»«lq»«cs»«rq»’
+  name [lq cs+ rq] = ‛\n«lq»«cs»«rq»’
+}

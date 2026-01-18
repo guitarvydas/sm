@@ -1,0 +1,13 @@
+sm {
+  Main = State+
+  State = "{" name Enter Step Exit "}"
+  Enter = "{" #stuff* "}"
+  Step = "{" #stuff* "}"
+  Exit = "{" #stuff* "}"
+  stuff =
+    | "{" stuff* "}" -- rec
+    | applySyntactic<Next> -- nextStatement
+    | ~"{" ~"}" any -- other
+  Next = "%next" #("'" (~"'" any)* "'")
+  name = "'" (~"'" any)+ "'"
+}

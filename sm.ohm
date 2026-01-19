@@ -12,6 +12,5 @@ sm {
     | applySyntactic<Next> -- nextStatement
     | ~"{" ~"}" any -- other
   Next = "%next" name
-  pyname = name
   name = "'" (~"'" any)+ "'"
 }

@@ -1,12 +1,21 @@
+%parameter statename
+
 % rewrite sm {
   Main [State+] = ‛«State»’
-  State [lb name Enter Step Exit rb] = ‛\n«lb»«name»«Enter»«Step»«Exit»«rb»’
-  Enter [lb stuff* rb] = ‛\n«lb»«stuff»«rb»’
-  Step [lb stuff* rb] = ‛\n«lb»«stuff»«rb»’
-  Exit [lb stuff* rb] = ‛\n«lb»«stuff»«rb»’
+  
+  State [lb name Enter Step Exit rb] =
+    ⎡ statename=‛«name»’
+      ‛\n«Enter»«Step»«Exit»’
+    ⎦
+
+  Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ (){«a»}’
+  Step [a] = ‛\ndef step_⟪statename⟫ (){«a»}’
+  Exit [a] = ‛\ndef exit_⟪statename⟫ (){«a»}’
+  action_empty [_] = ‛\npass’
+  action_other [lb stuff* rb] = ‛«stuff»’
   stuff_rec [lb stuff* rb] = ‛«lb»«stuff»«rb»’
-  stuff_nextStatement [n] = ‛«b»’
+  stuff_nextStatement [n] = ‛«n»’
   stuff_other [c] = ‛«c»’
-  Next [_ lq cs* rq] = ‛«_»«lq»«cs»«rq»’
-  name [lq cs+ rq] = ‛\n«lq»«cs»«rq»’
+  Next [_ name] = ‛\nexit_⟪statename⟫ ()\nenter_«name» ()’
+  name [lq cs+ rq] = ‛«cs»’
 }

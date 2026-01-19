@@ -1,17 +1,13 @@
 sm {
   Main = State+
   State = "{" name Enter Step Exit "}"
-  Enter = action
-  Step = action
-  Exit = action
-  action =
-    | "{}" -- empty
-    | "{" #stuff* "}" -- other
+  Enter = "{" #stuff* "}"
+  Step = "{" #stuff* "}"
+  Exit = "{" #stuff* "}"
   stuff =
     | "{" stuff* "}" -- rec
     | applySyntactic<Next> -- nextStatement
     | ~"{" ~"}" any -- other
-  Next = "%next" name
-  pyname = name
+  Next = "%next" #("'" (~"'" any)* "'")
   name = "'" (~"'" any)+ "'"
 }

@@ -3,12 +3,11 @@
     {}
     {
       if x < 0 {
-          %next 'wait for zero recrossing' 
-      } elif x > self.width {
-          %next 'wait for w recrossing' 
-      } else {
-          Loop ()
-      }
+          %next 'wait for zero recrossing' }
+      elif x > self.width {
+          %next 'wait for w recrossing' }
+      else {
+          Loop ()}
     }
     {}
 }
@@ -22,8 +21,7 @@
     {
       if x >= 0 {
 	  Loop ()
-	  %next 'idle' 
-      }
+	  %next 'idle'}
     }
     {}
 }
@@ -37,8 +35,7 @@
     {
       if x <= self.width {
 	  Loop ()
-	  %next 'idle' 
-      }
+	  %next 'idle'}
     }
     {}
 }

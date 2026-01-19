@@ -10,11 +10,11 @@ function memo_state_name (s) {
 }
 
 function create_stepper () {
-    let result = "\n\n[[\n";
+    let result = "\n\n〖\n";
     state_names.forEach (name => {
 	result += `"${name}": ${legalize (name)},\n`;
     });
-    result += "]] [self.state] ()\n";
+    result += "〗 [self.state] ()\n";
     return result;
 }
 

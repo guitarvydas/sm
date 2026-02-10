@@ -1,6 +1,6 @@
 %parameter statename
 
-% rewrite sm {
+% rewrite sm-metapy {
   Main [State+] = ‛«State»⎨create_stepper⎬’
   
   State [lb name Enter Step Exit rb] =

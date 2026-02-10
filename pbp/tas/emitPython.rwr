@@ -1,6 +1,6 @@
 % rewrite emitPython {
 
-Main [ Para TopLevel+] = ‛«Para»«TopLevel»’
+Main [TopLevel+] = ‛«TopLevel»’
 
 TopLevel_defvar [ Defvar] =‛«Defvar»’
 TopLevel_defconst [ Defconst] =‛«Defconst»’
@@ -11,7 +11,6 @@ TopLevel_external [x] =‛«x»’
 TopLevel_comment [s line?] =‛\n«s»«line»’
 TopLevel_line [line] =‛«line»’
 
-kw [ s] = ‛«s»’
 Defvar [ __ lval _eq e line?] = ‛\n«lval» = «e»«line»’
 Defconst [ __ lval _eq e line?] = ‛\n«lval» = «e»«line»’
 Defn [ _4 ident Formals StatementBlock line?] = ‛\ndef «ident» «Formals»:«StatementBlock»«line»\n’
@@ -74,6 +73,7 @@ ExternalPhrase_internalizeLnetFromString [_octothorpe _ lp rp] = ‛
         return None⤶
 ’
 ExternalPhrase_freshQueue [_octothorpe _ lp rp] = ‛ deque ([])’
+ExternalPhrase_resetQueue [_octothorpe _ lp e rp] = ‛\n«e» = deque ([])’
 ExternalPhrase_freshStack [_octothorpe _ lp rp] = ‛ []’
 ExternalPhrase_fresh [_octothorpe _83 _84 ident _85] =‛ «ident» ()’
 ExternalPhrase_stringshrink [_octothorpe _83 _84 e _85 ] =‛ str(«e»)[:30].replace ('\\r','⦙').replace ('\\n', '⧚') ’
@@ -125,11 +125,12 @@ ExternalPhrase_print_stderr [_octothorpe _ lp e rp] = ‛print («e», file=sys.
 ExternalPhrase_print_nl [_octothorpe _ lp rp] = ‛print ()’
 ExternalPhrase_print_nl_stderr [_octothorpe _ lp rp] = ‛’
 ExternalPhrase_display_queue_as_json [_octothorpe _ lp e rp] = ‛print (deque_to_json («e»), file=sys.stderr)’
-ExternalPhrase_split_string_for_shell [_octothorpe _ lp s rp] = ‛shlex.split («s»)’
 ExternalPhrase_substitute [_octothorpe _ lp find _comma1 replace _comma2 s rp] = ‛re.sub («find», «replace», «s»)’
 ExternalPhrase_run_command [_octothorpe _ lp cmd _comma1 args _comma2 ret _comma3 rc _comma4 out _comma5 errout rp] = ‛
 try:⤷
-    «ret» = subprocess.run («cmd», input=«args», text=True, capture_output=True)
+    with open('junk.txt', 'w') as file:⤷
+        file.write(cmd)⤶
+    «ret» = subprocess.run (shlex.split («cmd»), input=«args», text=True, capture_output=True)
     «rc» = «ret».returncode
     «out» = «ret».stdout.strip ()
     «errout» = «ret».stderr.strip ()⤶
@@ -139,7 +140,7 @@ except Exception as e:⤷
     «out» = ''
     «errout» = str(e)⤶
 ’
-ExternalPhrase_abort [_octothorpe _ lp rp] = ‛exit ()’
+ExternalPhrase_abort [_octothorpe _ lp rp] = ‛exit (1)’
 ExternalPhrase_asstr [_octothorpe _ lp e rp] = ‛str («e»)’
 ExternalPhrase_len [_octothorpe _ lp e rp] = ‛len («e»)’
 ExternalPhrase_asint [_octothorpe _ lp e rp] = ‛int («e»)’
@@ -152,6 +153,9 @@ ExternalPhrase_negate [_octothorpe _ lp x rp] = ‛-«x»’
 ExternalPhrase_liveUpdate [_octothorpe _ lp s1 _comma s2 rp] = ‛live_update («s1», «s2»)’
 ExternalPhrase_queueAsJsonToStdout [_octothorpe _ lp x rp] = ‛print (deque_to_json («x»))’
 ExternalPhrase_dir [_octothorpe _ lp x rp] = ‛ «x» ’
+
+ExternalPhrase_dispatch_lookup [_octothorpe _ lp arg _comma eh rp] = ‛dispatch_lookup («arg», «eh»)’
+ExternalPhrase_dispatch [_octothorpe _ lp f _comma eh _comma1 msg rp] = ‛«f» («eh», «msg»)’
 
 ExternalPhrase_unrecognized [_octothorpe ident lp stuff* rp] = ‛«_octothorpe» «ident» ⎝ error - unrecognized external (with given arguments) ⎠ «lp»«stuff»«rp» ’
 
@@ -264,10 +268,8 @@ stringchar_rec [lb cs* rb] = ‛«lb»«cs»«rb»’
 stringchar_other [c] = ‛«c»’
 
 
-kw [lb s rb] = ‛«lb»«s»«rb»’
-ident [lb cs* rb] = ‛«lb»«cs»«rb»’
-idchar_rec [lb cs* rb] = ‛«lb»«cs»«rb»’
-idchar_other [c] = ‛«c»’
+ident [cs*] = ‛«cs»’
+idchar [c] = ‛«c»’
 
 comment [lb cs* rb] = ‛«lb»«cs»«rb»’
 commentchar_rec [lb cs* rb] = ‛«lb»«cs»«rb»’
@@ -286,5 +288,4 @@ port [s] = ‛«s»’
 
 line [lb cs* rb] = ‛«lb»«cs»«rb»’
 Comma [line1? _comma line2?] = ‛«_comma»’
-ParaMark [c] = ‛«c»’
 }

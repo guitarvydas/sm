@@ -43,6 +43,7 @@ process.stdin.on('end', () => {
           try {
             // Append the string value to the file
             fs.appendFileSync(filename, value, 'utf8');
+            console.log(`Appended to file: ${filename}`);
           } catch (error) {
             console.error(`Error writing file ${filename}: ${error.message}`);
           }

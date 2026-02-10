@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""dtree - Decision tree transmogrifier build script"""
+
+import os
+import sys
+import subprocess
+import shutil
+from pathlib import Path
+
+
+def run_command(cmd, shell=False, input_data=None):
+    """Run a command and raise exception on failure"""
+    if isinstance(cmd, str) and not shell:
+        cmd = cmd.split()
+    result = subprocess.run(
+        cmd, 
+        shell=shell, 
+        capture_output=True, 
+        text=True,
+        input=input_data
+    )
+    if result.returncode != 0:
+        raise RuntimeError(f"Command failed: {cmd}\nStderr: {result.stderr}")
+    return result
+
+
+def main():
+    # Set up environment variables based on arguments
+    if len(sys.argv) == 1:
+        # No arguments - top level build
+        pbpwd = Path.cwd()
+        pbp = Path.home() / "projects" / "pbp-dev"
+        pbpcaller = pbpwd
+        
+        os.environ["PBPWD"] = str(pbpwd)
+        os.environ["PBP"] = str(pbp)
+        os.environ["PBPCALLER"] = str(pbpcaller)
+        
+        # Add to PYTHONPATH
+        kernel_path = pbp / "kernel"
+        current_pythonpath = os.environ.get("PYTHONPATH", "")
+        os.environ["PYTHONPATH"] = f"{kernel_path}{os.pathsep}{current_pythonpath}"
+        
+        # Each target language must have a decision tree diagram with legal code inside of it
+        # Pick one of the three:
+        fname = "example_frish"
+        # fname = "example_js"
+        # fname = "example_py"
+        
+        # Import any new versions of pbp and kernel
+        refresh_script = pbpwd / "REFRESH-BOOTSTRAP"
+        run_command([str(refresh_script)])
+        
+        resetlog = pbp / "resetlog"
+        run_command([str(resetlog)])
+        
+    elif len(sys.argv) == 4:
+        # Exactly three arguments
+        # $1 is callee's working dir (i.e. dtree)
+        # $2 is name of decision tree .drawio file
+        # $3 is caller's working dir
+        pbpwd = Path(sys.argv[1])
+        fname = sys.argv[2]
+        pbpcaller = Path(sys.argv[3])
+        
+        os.environ["PBPWD"] = str(pbpwd)
+        os.environ["PBPCALLER"] = str(pbpcaller)
+        
+    else:
+        # Error: usage
+        print(f"Usage: {sys.argv[0]} [diagram callerWDIR]", file=sys.stderr)
+        sys.exit(1)
+    
+    # Clean up old outputs
+    for pattern in ["out.*", "*.json"]:
+        for file in Path.cwd().glob(pattern):
+            file.unlink()
+    
+    # Change to PBPWD directory
+    os.chdir(pbpwd)
+    
+    # Convert dtree tool diagram to JSON
+    pbp_path = Path(os.environ["PBP"])
+    das2json = pbp_path / "das2json"
+    run_command([str(das2json), "dtree-transmogrifier.drawio"])
+    
+    # Run the tool on the given filename
+    python_cmd = [
+        sys.executable,
+        "main.py",
+        str(pbpcaller / f"{fname}.drawio"),
+        "main",
+        "dtree-transmogrifier.drawio.json"
+    ]
+    
+    result = subprocess.run(python_cmd, capture_output=True, text=True, check=True)
+    
+    # Split outputs
+    splitoutputs = pbp_path / "splitoutputs"
+    split_result = subprocess.run(
+        [str(splitoutputs)],
+        input=result.stdout,
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    
+    # Check for errors and move results to caller's working directory
+    error_file = Path("out.✗")
+    if error_file.exists():
+        print("\n>> ERROR <<")
+        print(error_file.read_text())
+    else:
+        # Move output files to caller's directory
+        output_files = {
+            "out.frish": f"{fname}.frish",
+            "out.dt": f"{fname}.dt",
+            "out.py": f"{fname}.py",
+            "out.js": f"{fname}.js"
+        }
+        
+        for src_name, dst_name in output_files.items():
+            src_path = Path(src_name)
+            if src_path.exists():
+                dst_path = pbpcaller / dst_name
+                shutil.move(str(src_path), str(dst_path))
+
+
+if __name__ == "__main__":
+    main()

@@ -301,23 +301,46 @@ function lintConnections(name, cells) {
     let drawioTopIdx = cells.find(cell => cell.parent === 0)?.id;
     let drawioSecondIdx = cells.find(cell => cell.parent === drawioTopIdx)?.id;
 
+    // Check for orphaned ports (ports not parented to containers)
+    // A port should be inside a container, not at the page root level
+    for (const cell of cells) {
+        if (cell.type !== CellType.Rect || cell.flags.has(FlagValue.Container)) continue;
+        
+        // Check if this port's mxgraphParent is "1" (the page root in draw.io)
+        if (cell.mxgraphParent === "1") {
+            // Check if this cell is used in any connections
+            const isUsedInConnection = cells.some(c => 
+                c.type === CellType.Arrow && (c.source === cell.id || c.target === cell.id)
+            );
+            
+            if (isUsedInConnection) {
+                console.error(`WARNING in ${name}: Port "${cell.value}" is not inside a container but is used in connections. This connection will be ignored.`);
+                ok = false;
+            }
+        }
+    }
+
     for (const cell of cells) {
         if (cell.type !== CellType.Arrow) continue;
 
 	if (cell.source === undefined) {
             try {
-                console.error (`wire source unconnected in ${name} target="${cells[cells[cell.target].parent].value}"`);
+                const targetPort = cells[cell.target];
+                const targetContainer = cells[targetPort.parent];
+                console.error(`wire source unconnected in ${name} target port="${targetPort.value}" in container="${targetContainer.value}"`);
 	    } catch (err) {
-                console.error (`wire source unconnected`);
+                console.error(`wire source unconnected in ${name}`);
             }		    
             ok = false;
 	    continue;
         }
 	if (cell.target === undefined) {
             try {
-                console.error (`wire target unconnected container=${name} source=${cells[cells[cell.source].parent].value}"`);
+                const sourcePort = cells[cell.source];
+                const sourceContainer = cells[sourcePort.parent];
+                console.error(`wire target unconnected in ${name} source port="${sourcePort.value}" in container="${sourceContainer.value}"`);
             } catch (err) {
-		console.error (`wire target unconnected in ${name}`);
+		console.error(`wire target unconnected in ${name}`);
 	    }
             ok = false;
 	    continue;
@@ -421,7 +444,6 @@ async function main() {
     const diagramName = await parseCommandLineArgs();
     try {
         const fname = await drawio2json(diagramName);
-        console.log('Created:', fname);
     } catch (err) {
         console.error('Error:', err);
         process.exit(1);

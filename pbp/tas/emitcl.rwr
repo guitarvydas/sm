@@ -1,6 +1,6 @@
 % rewrite emitCL {
 
-Main [ Para TopLevel+] = ‛«Para»«TopLevel»’
+Main [TopLevel+] = ‛«TopLevel»’
 
 TopLevel_defvar [ Defvar] =‛«Defvar»’
 TopLevel_defconst [ Defconst] =‛«Defconst»’
@@ -10,7 +10,6 @@ TopLevel_import [ Import] =‛«Import»’
 TopLevel_comment [s line?] =‛«s»«line»’
 TopLevel_line [line] =‛«line»’
 
-kw [ s] = ‛«s»’
 Defvar [ __ lval _eq e line?] = ‛\n(defparameter «lval» «e»)«line»’
 Defconst [ __ lval _eq e line?] = ‛\n(defparameter «lval» «e»)’
 Defn [ _4 ident Formals StatementBlock line?] = 
@@ -62,6 +61,7 @@ ExternalPhrase_internalizeLnetFromString [_octothorpe _ lp rp] = ‛
 ’
 
 ExternalPhrase_freshQueue [_octothorpe _83 _84 _85] =‛ (make-instance 'Queue)’
+ExternalPhrase_resetQueue [_octothorpe _83 _84 e _85] =‛\n(setf «e» (make-instance 'Queue))’
 ExternalPhrase_freshStack [_octothorpe _83 _84 _85] =‛ nil’
 ExternalPhrase_fresh [_octothorpe _83 _84 ident _85] =‛ (make-instance '«ident»)’
 ExternalPhrase_stringshrink [_octothorpe _83 _84 e _85 ] =‛ «e»’
@@ -183,7 +183,6 @@ ExternalPhrase_print_stdout [_octothorpe _ lp e rp] = ‛(format *standard-outpu
 ExternalPhrase_print_stderr [_octothorpe _ lp e rp] = ‛(format *error-output* "~a~%25" «e»)’
 ExternalPhrase_print_nl [_octothorpe _ lp rp] = ‛(format *standard-output* "%0A")’
 ExternalPhrase_print_nl_stderr [_octothorpe _ lp rp] = ‛(format *error-output* "%0A")’
-ExternalPhrase_split_string_for_shell [_octothorpe _ lp s rp] = ‛(split-sequence '(#\\space) «s»)’
 ExternalPhrase_substitute [_octothorpe _ lp new_item _comma1 old_item _comma2 s rp] = ‛(substitute «new_item» «old_item» «s»)’
 
 ExternalPhrase_run_command [_octothorpe _ lp cmd _comma1 args _comma2 ret _comma3 rc _comma4 out _comma5 errout rp] = ‛(multiple-value-setq («out» «errout» «rc») (uiop::run-program (concatenate 'string «cmd» " " «args») :output :string :error :string))’
@@ -201,6 +200,9 @@ ExternalPhrase_liveUpdate [_octothorpe _ lp s1 _comma s2 rp] = ‛(live_update �
 ExternalPhrase_queueAsJsonToStdout [_octothorpe _ lp x rp] = ‛(queue-as-json-to-stdout «x»)’
 ExternalPhrase_dir [_octothorpe _ lp x rp] = ‛(getwd «x»)’
 
+
+ExternalPhrase_dispatch_lookup [_octothorpe _ lp arg _comma eh rp] = ‛(dispatch_lookup «arg» «eh»)’
+ExternalPhrase_dispatch [_octothorpe _ lp f _comma eh _comma1 msg rp] = ‛(«f» «eh», «msg»)’
 
 ExternalPhrase_unrecognized [_octothorpe ident lp stuff* rp] = ‛«_octothorpe» «ident» ⎝ error - unrecognized external (with given arguments) ⎠ «lp»«stuff»«rp» ’
 
@@ -321,10 +323,8 @@ string [lb cs* rb] = ‛«lb»«cs»«rb»’
 stringchar_rec [lb cs* rb] = ‛«lb»«cs»«rb»’
 stringchar_other [c] = ‛«c»’
 
-kw [lb s rb] = ‛«lb»«s»«rb»’
-ident [lb cs* rb] = ‛«lb»«cs»«rb»’
-idchar_rec [lb cs* rb] = ‛«lb»«cs»«rb»’
-idchar_other [c] = ‛«c»’
+ident [cs*] = ‛«cs» ’
+idchar [c] = ‛«c»’
 
 comment [lb cs* rb] = ‛«lb»«cs»«rb»’
 commentchar_rec [lb cs* rb] = ‛«lb»«cs»«rb»’
@@ -343,7 +343,5 @@ port [s] = ‛«s»’
 
 line [lb cs* rb] = ‛«lb»«cs»«rb»’
 Comma [line1? _comma line2?] = ‛«line1» «line2»’
-
-ParaMark [c] = ‛«c»’
 
 }

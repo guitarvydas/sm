@@ -6,7 +6,7 @@ grammar=$3
 rewrite=$4
 support=$5
 src=$6
-lib=${pbp}/t2t/lib
+lib=${pbp}/t2td/lib
 
 node "${lib}/rwr.mjs" "${rewrite}" >"${wd}/temp.rewrite.mjs"
 sed -e 's/`/` + "`" + String.raw`/g' <${grammar} >temp.grammar

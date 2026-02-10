@@ -1,6 +1,6 @@
 %parameter statename
 
-% rewrite sm-metapy {
+% rewrite sm_metapy {
   Main [State+] = ‛«State»⎨create_stepper⎬’
   
   State [lb name Enter Step Exit rb] =
@@ -11,13 +11,13 @@
     ⎦
 
   Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ (){«a»}’
-  Step [a] = ‛\ndef step_⟪statename⟫ (){«a»}’
-  Exit [a] = ‛\ndef exit_⟪statename⟫ (){«a»}’
+  Step [a] = ‛\ndef step_⎨legalize ‛⟪statename⟫’⎬ (){«a»}’
+  Exit [a] = ‛\ndef exit_⎨legalize ‛⟪statename⟫’⎬ (){«a»}’
   action_empty [_] = ‛\npass’
   action_other [lb stuff* rb] = ‛«stuff»’
   stuff_rec [lb stuff* rb] = ‛«lb»«stuff»«rb»’
   stuff_nextStatement [n] = ‛«n»’
   stuff_other [c] = ‛«c»’
-  Next [_ name] = ‛\nexit_⟪statename⟫ ()\nenter_«name» ()’
+  Next [_ name] = ‛\nexit_⎨legalize ‛⟪statename⟫’⎬ ()\nenter_⎨legalize ‛«name»’⎬ ()’
   name [lq cs+ rq] = ‛«cs»’
 }

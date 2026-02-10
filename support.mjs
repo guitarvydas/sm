@@ -1,7 +1,7 @@
 let state_names = [];
 
 function legalize (s) {
-    return s.replace (" ", "_");
+    return s.replace (/ /g, "_");
 }
 
 function memo_state_name (s) {

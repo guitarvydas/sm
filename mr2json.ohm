@@ -1,6 +1,5 @@
 mr2json {
-  Top = ArrayOfArrays
-  ArrayOfArrays = name "{" Array+ "}"
+  Top = name "{" Array+ "}"
   Array = name "{" attr* Object+ "}"
   attr = name "=" str
   Object = name "{" attr+ "}"

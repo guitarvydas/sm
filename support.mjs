@@ -1,3 +1,7 @@
+// decode.mjs
+import { decode } from 'html-entities';
+
+
 let state_names = [];
 
 function legalize (s) {
@@ -18,4 +22,8 @@ function create_stepper () {
     return result;
 }
 
-    
+function decodeHTML(s) {
+    let prev;
+    do { prev = s; s = decode(s); } while (s !== prev);
+    return s;
+}

@@ -9,5 +9,5 @@ rmdiv {
     | (~"\"" any) -- other
   divcontent = (~ediv any)+
   ediv = "&lt;/div&gt;"
-  endbegindiv= "&quot;&gt;"
+  endbegindiv = "&quot;&gt;"
 }

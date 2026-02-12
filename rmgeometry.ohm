@@ -1,7 +1,7 @@
 rmgeometry {
   Main = Header Diagram+ "</mxfile>"
   Header = "<mxfile" attribute+ ">"
-  Diagram = "<diagram" attribute attribute ">" GraphModel+ "</diagram>"
+  Diagram = "<diagram" attribute+ ">" GraphModel+ "</diagram>"
   GraphModel = "<mxGraphModel" attribute+ ">" Root "</mxGraphModel>"
   Root = "<root>" Cell+ "</root>"
 

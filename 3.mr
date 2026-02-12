@@ -11,7 +11,7 @@ cell {
 id="yK0KRwzggwMbkE22hVbx-14"
 parent="yK0KRwzggwMbkE22hVbx-13"
 kind="edgeLabel"
-value="x &amp;gt; w"}
+value="x &amp;gt; w&lt;div&gt;{reverse ()}&lt;/div&gt;"}
 cell {
 id="yK0KRwzggwMbkE22hVbx-15"
 parent="yK0KRwzggwMbkE22hVbx-1"
@@ -22,7 +22,7 @@ cell {
 id="yK0KRwzggwMbkE22hVbx-16"
 parent="yK0KRwzggwMbkE22hVbx-15"
 kind="edgeLabel"
-value="x &amp;lt; 0"}
+value="x &amp;lt; 0&lt;div&gt;{reverse ()}&lt;/div&gt;"}
 cell {
 id="yK0KRwzggwMbkE22hVbx-17"
 parent="yK0KRwzggwMbkE22hVbx-1"
@@ -43,7 +43,7 @@ cell {
 id="yK0KRwzggwMbkE22hVbx-20"
 parent="yK0KRwzggwMbkE22hVbx-1"
 kind="ellipse"
-value="&lt;span style=&quot;font-size: 12px;&quot;&gt;[send reverse]&lt;/span&gt;wait for w re-crossing"}
+value="wait for w re-crossing"}
 cell {
 id="yK0KRwzggwMbkE22hVbx-21"
 parent="yK0KRwzggwMbkE22hVbx-1"
@@ -59,5 +59,5 @@ cell {
 id="yK0KRwzggwMbkE22hVbx-23"
 parent="yK0KRwzggwMbkE22hVbx-1"
 kind="ellipse"
-value="&lt;span style=&quot;font-size: 12px;&quot;&gt;[send reverse]&lt;/span&gt;wait for zero re-crossing"}}}
+value="wait for zero re-crossing"}}}
 

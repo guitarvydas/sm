@@ -3,9 +3,9 @@
     {}
     {
       if x < 0 {
-          %next 'wait for zero recrossing' }
+          %next 'wait for zero recrossing' {reverse ()} }
       elif x > self.width {
-          %next 'wait for w recrossing' }
+          %next 'wait for w recrossing' {reverse ()} }
       else {
           Loop ()}
     }
@@ -15,7 +15,6 @@
 {
     'wait for zero recrossing'
     {
-      Reverse ()
       Loop ()
     }
     {
@@ -29,7 +28,6 @@
 {
     'wait for w recrossing'
     {
-        Reverse ()
         Loop ()
     }
     {

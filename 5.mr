@@ -11,7 +11,7 @@ group {
 	    id="yK0KRwzggwMbkE22hVbx-14"
 	    parent="yK0KRwzggwMbkE22hVbx-13"
 	    kind="edgeLabel"
-	    value="x > w"}
+	    value="x > w<div>{reverse ()}</div>"}
 	cell {
 	    id="yK0KRwzggwMbkE22hVbx-15"
 	    parent="yK0KRwzggwMbkE22hVbx-1"
@@ -22,7 +22,7 @@ group {
 	    id="yK0KRwzggwMbkE22hVbx-16"
 	    parent="yK0KRwzggwMbkE22hVbx-15"
 	    kind="edgeLabel"
-	    value="x < 0"}
+	    value="x < 0<div>{reverse ()}</div>"}
 	cell {
 	    id="yK0KRwzggwMbkE22hVbx-17"
 	    parent="yK0KRwzggwMbkE22hVbx-1"
@@ -43,7 +43,7 @@ group {
 	    id="yK0KRwzggwMbkE22hVbx-20"
 	    parent="yK0KRwzggwMbkE22hVbx-1"
 	    kind="ellipse"
-	    value="[send reverse]wait for w re-crossing"}
+	    value="wait for w re-crossing"}
 	cell {
 	    id="yK0KRwzggwMbkE22hVbx-21"
 	    parent="yK0KRwzggwMbkE22hVbx-1"
@@ -59,7 +59,7 @@ group {
 	    id="yK0KRwzggwMbkE22hVbx-23"
 	    parent="yK0KRwzggwMbkE22hVbx-1"
 	    kind="ellipse"
-	    value="[send reverse]wait for zero re-crossing"}}}
+	    value="wait for zero re-crossing"}}}
 
 
 

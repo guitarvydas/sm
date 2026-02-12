@@ -16,7 +16,7 @@ id="yK0KRwzggwMbkE22hVbx-14"
 connectable="0"
 parent="yK0KRwzggwMbkE22hVbx-13"
 style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;"
-value="x &amp;gt; w"
+value="x &amp;gt; w&lt;div&gt;{reverse ()}&lt;/div&gt;"
 vertex="1"
 }
 cell {
@@ -32,7 +32,7 @@ id="yK0KRwzggwMbkE22hVbx-16"
 connectable="0"
 parent="yK0KRwzggwMbkE22hVbx-15"
 style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;"
-value="x &amp;lt; 0"
+value="x &amp;lt; 0&lt;div&gt;{reverse ()}&lt;/div&gt;"
 vertex="1"
 }
 cell {
@@ -62,7 +62,7 @@ cell {
 id="yK0KRwzggwMbkE22hVbx-20"
 parent="yK0KRwzggwMbkE22hVbx-1"
 style="ellipse;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=none;"
-value="&lt;span style=&quot;font-size: 12px;&quot;&gt;[send reverse]&lt;/span&gt;&lt;div style=&quot;font-size: 12px;&quot;&gt;wait for w re-crossing&lt;/div&gt;"
+value="&lt;div style=&quot;font-size: 12px;&quot;&gt;wait for w re-crossing&lt;/div&gt;"
 vertex="1"
 }
 cell {
@@ -85,7 +85,7 @@ cell {
 id="yK0KRwzggwMbkE22hVbx-23"
 parent="yK0KRwzggwMbkE22hVbx-1"
 style="ellipse;whiteSpace=wrap;html=1;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=none;"
-value="&lt;span style=&quot;font-size: 12px;&quot;&gt;[send reverse]&lt;/span&gt;&lt;div style=&quot;font-size: 12px;&quot;&gt;wait for zero re-crossing&lt;/div&gt;"
+value="&lt;div style=&quot;font-size: 12px;&quot;&gt;wait for zero re-crossing&lt;/div&gt;"
 vertex="1"
 }
 }

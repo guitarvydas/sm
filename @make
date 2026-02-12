@@ -38,7 +38,8 @@ cd "${PBPWD}"
 ######### commands specific to this project #############
 
 
-${PBP}/t2t smdiagram1 <looptest.drawio
+${PBP}/t2t rmgeometry <looptest.drawio |\
+    ${PBP}/brace_indent
 
 # ${PBP}/t2t sm sm-metapy <"${fname}.sm" |\
 #     ${PBP}/brace_indent |\

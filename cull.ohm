@@ -14,5 +14,6 @@ cull {
     | name "=" str -- ignore
   name = letter alnum*
   str = "\"" strtail
-  strtail = (~"\"" any)* "\""
+  strtail = schar* "\""
+  schar = ~"\"" any
 }

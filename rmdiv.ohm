@@ -1,0 +1,13 @@
+rmdiv {
+  characters = char+
+  char =
+    | str -- str
+    | any -- other
+  str = "\"" schar* "\""
+  schar =
+    | "&lt;div " (~endbegindiv any)+ endbegindiv divcontent ediv -- div 
+    | (~"\"" any) -- other
+  divcontent = (~ediv any)+
+  ediv = "&lt;/div&gt;"
+  endbegindiv= "&quot;&gt;"
+}

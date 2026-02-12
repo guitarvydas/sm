@@ -38,11 +38,15 @@ cd "${PBPWD}"
 ######### commands specific to this project #############
 
 echo 1
-${PBP}/t2t rmgeometry <looptest.drawio >junk.1
+${PBP}/t2t rmgeometry <looptest.drawio >1.mr
 echo 2
-${PBP}/t2t cull <junk.1 >junk.2
+${PBP}/t2t cull <1.mr >2.mr
 echo 3
-${PBP}/brace_indent <junk.2 >junk.js
+${PBP}/t2t rmdiv <2.mr >3.mr
+echo 4
+${PBP}/t2t rmspan <3.mr >4.mr
+echo 5
+${PBP}/brace_indent <4.mr >5.mr
     
 
 # ${PBP}/t2t sm sm-metapy <"${fname}.sm" |\

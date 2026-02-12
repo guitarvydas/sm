@@ -1,0 +1,11 @@
+mr2json {
+  Top = ArrayOfArrays
+  ArrayOfArrays = name "{" Array+ "}"
+  Array = name "{" attr* Object+ "}"
+  attr = name "=" str
+  Object = name "{" attr+ "}"
+  name = uletter ualnum*
+  uletter = letter | "_"
+  ualnum = alnum | "_"
+  str = "\"" (~"\"" any)* "\""
+}

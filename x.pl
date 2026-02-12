@@ -1,12 +1,13 @@
 :- discontiguous transitionCode/3.
 :- discontiguous transition/4.
 
-transition(id="yK0KRwzggwMbkE22hVbx-13",parent="yK0KRwzggwMbkE22hVbx-1",source="yK0KRwzggwMbkE22hVbx-17",target="yK0KRwzggwMbkE22hVbx-20").
-transitionCode( id="yK0KRwzggwMbkE22hVbx-14", parent="yK0KRwzggwMbkE22hVbx-13", value="x > w<div>{reverse ()}</div>").
-transition(id="yK0KRwzggwMbkE22hVbx-15",parent="yK0KRwzggwMbkE22hVbx-1",source="yK0KRwzggwMbkE22hVbx-17",target="yK0KRwzggwMbkE22hVbx-23").
-transitionCode(id="yK0KRwzggwMbkE22hVbx-16",parent="yK0KRwzggwMbkE22hVbx-15",value="x<0 {reverse()}").
-state( id="yK0KRwzggwMbkE22hVbx-17", parent="yK0KRwzggwMbkE22hVbx-1", value="idle").
+transition(id="13",parent="1",source="17",target="20").
+transitionCode( id="14", parent="13", value="x > w<div>{reverse ()}</div>").
+transition(id="15",parent="1",source="17",target="23").
+transitionCode(id="16",parent="15",value="x<0 {reverse()}").
+state( id="17", parent="1", value="idle").
 
-assocCode(Tr,C,S,D):-
-    transitionCode(id=_,parent=Tr,value=C),
-    transition(id=Tr,parent=_,source=S,target=D).
+assocCode(Name,T,S,D,[C]):-
+    transitionCode(id=_,parent=T,value=C),
+    transition(id=T,parent=_,source=S,target=D),
+    state(id=S,parent=_,value=Name).

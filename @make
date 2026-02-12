@@ -48,7 +48,8 @@ ${PBP}/t2t rmspan <3.mr >4.mr
 echo 5
 ${PBP}/t2t unhtml <4.mr >5.mr
 echo 6
-${PBP}/brace_indent <5.mr >6.mr
+${PBP}/t2t mr2json <5.mr >6.json
+
     
 
 # ${PBP}/t2t sm sm-metapy <"${fname}.sm" |\

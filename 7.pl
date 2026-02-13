@@ -1,12 +1,12 @@
 
-transition( did="4kYwzf",id="13",parent="1",source="17",target="20").
-transitionCode( did="4kYwzf",id="14",parent="13",value="x > w<div>{reverse ()}</div>").
-transition( did="4kYwzf",id="15",parent="1",source="17",target="23").
-transitionCode( did="4kYwzf",id="16",parent="15",value="x < 0<div>{reverse ()}</div>").
-state( did="4kYwzf",id="17",parent="1",value="idle").
-transition( did="4kYwzf",id="18",parent="1",source="20",target="17").
-transitionCode( did="4kYwzf",id="19",parent="18",value="x <= w").
-state( did="4kYwzf",id="20",parent="1",value="wait for w re-crossing").
-transition( did="4kYwzf",id="21",parent="1",source="23",target="17").
-transitionCode( did="4kYwzf",id="22",parent="21",value="x >= 0").
-state( did="4kYwzf",id="23",parent="1",value="wait for zero re-crossing").
+transition( did=i4kYwzf, id=i13, parent=i1, source=i17, target=i20).
+trCode( did=i4kYwzf, id=i14, parent=i13, value="x > w<div>{reverse ()}</div>").
+transition( did=i4kYwzf, id=i15, parent=i1, source=i17, target=i23).
+trCode( did=i4kYwzf, id=i16, parent=i15, value="x < 0<div>{reverse ()}</div>").
+state( did=i4kYwzf, id=i17, parent=i1, value="idle").
+transition( did=i4kYwzf, id=i18, parent=i1, source=i20, target=i17).
+trCode( did=i4kYwzf, id=i19, parent=i18, value="x <= w").
+state( did=i4kYwzf, id=i20, parent=i1, value="wait for w re-crossing").
+transition( did=i4kYwzf, id=i21, parent=i1, source=i23, target=i17).
+trCode( did=i4kYwzf, id=i22, parent=i21, value="x >= 0").
+state( did=i4kYwzf, id=i23, parent=i1, value="wait for zero re-crossing").

@@ -1,7 +1,7 @@
 % rewrite code {
   main [cs+] = ‛«cs»’
-  macro_state [s] = ‛«s»’
-  macro_transition [t] = ‛«t»’
+  macro_state [s] = ‛«s»\n’
+  macro_transition [t] = ‛«t»\n’
   macro_other [c] = ‛«c»’
   MatchState [_state lp attrs+ rp dot] = ‛\nstate(«attrs»).’
   MatchTransition [_transition lp attrs+ rp dot] = ‛\ntransition(«attrs»).’
@@ -20,7 +20,7 @@
   codeenter [b] = ‛«b»’
   codeexit [b] = ‛«b»’
   codeblock [lb cs+ rb] = ‛«lb»«cs»«rb»’
-  tcode [lq guard code rq] = ‛guard="«guard»", tcode="«code»"’
+  tcode [lq guard code rq] = ‛guard="«guard»", transitioncode="«code»"’
   guard [t] = ‛«t»’
   name [uletter ualnum*] = ‛«uletter»«ualnum»’
   uletter [c] = ‛«c»’

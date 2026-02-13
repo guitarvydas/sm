@@ -22,7 +22,7 @@ code {
   codeexit = codeblock
   codeblock = "{" (~"}" any)+ "}"
 
-  tcode = "\"" guard codeblock "\""
+  tcode = "\"" guard codeblock? "\""
   guard = rawtext
 
   name = uletter ualnum*

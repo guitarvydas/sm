@@ -1,4 +1,7 @@
-
+:- discontiguous trCode/4.
+:- discontiguous transition/5.
+:- discontiguous state/4.
+diagram( did=i4kYwzf).
 transition( did=i4kYwzf, id=i13, parent=i1, source=i17, target=i20).
 trCode( did=i4kYwzf, id=i14, parent=i13, value="x > w<div>{reverse ()}</div>").
 transition( did=i4kYwzf, id=i15, parent=i1, source=i17, target=i23).

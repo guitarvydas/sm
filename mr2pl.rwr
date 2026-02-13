@@ -5,7 +5,10 @@
   
   Diagram [_ lb dgmid Object+ rb] =
     ⎡ diagramid=‛«dgmid»’
-        ‛«Object»’
+        ‛:- discontiguous trCode/4.
+:- discontiguous transition/5.
+:- discontiguous state/4.
+diagram(«dgmid»).«Object»’
     ⎦
 
   dgmid [name eq str] = ‛ did=«str»,’

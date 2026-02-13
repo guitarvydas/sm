@@ -11,7 +11,7 @@ cell {
 id="yK0KRwzggwMbkE22hVbx-14"
 parent="yK0KRwzggwMbkE22hVbx-13"
 kind="edgeLabel"
-value="x > w<div>{reverse ()}</div>"}
+value="x > w{reverse ()};"}
 cell {
 id="yK0KRwzggwMbkE22hVbx-15"
 parent="yK0KRwzggwMbkE22hVbx-1"
@@ -22,7 +22,7 @@ cell {
 id="yK0KRwzggwMbkE22hVbx-16"
 parent="yK0KRwzggwMbkE22hVbx-15"
 kind="edgeLabel"
-value="x < 0<div>{reverse ()}</div>"}
+value="x < 0{reverse ()};"}
 cell {
 id="yK0KRwzggwMbkE22hVbx-17"
 parent="yK0KRwzggwMbkE22hVbx-1"

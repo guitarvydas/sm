@@ -35,3 +35,31 @@ group {
 	state { id="yK0KRwzggwMbkE22hVbx-23" parent="yK0KRwzggwMbkE22hVbx-1" value="wait for zero re-crossing"}
     }}
 ```
+
+---
+
+why does the following swipl code give the error "ERROR: /Users/paultarvydas/projects/sm/w.pl:9:19: Syntax error: Operator expected"?
+```
+emitState(Diagram,IDState):-
+    state(did=Diagram, id=IDstate, parent=_, value=NamePlusCode),
+    format("state ~q~n{", [NamePlusCode]),
+    (
+	forall(
+	    transition(did=Diagram, id=_, parent=_, source=IDstate, target=_, code=C),
+	    format("%nextif ~q~n",[C])
+    ),
+    format("}~n",[]).
+
+emitAllStates(Diagram):-
+    forall(
+	state(did=Diagram, id=IDstate, parent=_, value=_),
+	emitState(Diagram,IDstate)
+    ).
+
+emit:-
+    consult("8.pl"),
+    forall(
+	diagram(did=Diagram),
+	emitAllStates(Diagram)
+    ).
+```

@@ -53,7 +53,8 @@ echo 7
 ${PBP}/t2t mr2json <6.mr >7.json
 echo 7a
 ${PBP}/t2t mr2pl <6.mr | python commarpar.py >7.pl
-
+echo 8
+swipl -s y.pl -g 'run.' -g 'halt.' >8.pl
     
 
 # ${PBP}/t2t sm sm-metapy <"${fname}.sm" |\

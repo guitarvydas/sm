@@ -1,7 +1,10 @@
 emitTransitions(Diagram,IDstate,Dest,Guard,Tcode):-
     forall(
         transition(did=Diagram, id=_, parent=_, source=IDstate, target=Dest, guard=Guard, transitioncode=Tcode),
-        format("%next ~q %if ~w ~w~n",[Dest,Guard,Tcode])
+	(
+	    state(did=Diagram, id=Dest, parent=_, name=DestName, enter=_, exit=_),
+            format("%next ~q %if ~w ~w~n",[DestName,Guard,Tcode])
+	)
     ).
 
 emitState(Diagram,IDstate):-

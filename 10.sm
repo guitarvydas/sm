@@ -1,0 +1,22 @@
+state "idle" {
+    {}
+    {
+	    %next i20 %if x > w {reverse ()}
+	    %next i23 %if x < 0 {reverse ()}
+    }
+    {}
+}
+state "wait for w re-crossing" {
+    {}
+    {
+	    %next i17 %if x <= w 
+    }
+    {}
+}
+state "wait for zero re-crossing" {
+    {}
+    {
+	    %next i17 %if x >= 0 
+    }
+    {}
+}

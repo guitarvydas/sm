@@ -1,23 +1,19 @@
 mr2json {
-  Group = name "{" Diagram+ "}"
-  Diagram = name "{" dgmid Object+ "}"
-  dgmid = "id" "=" str
-  attr = ~"kind" name "=" str
-  transitionAttr =
-    | "kind" "=" "\"" "edge" "\""      -- kind
-    | attr                             -- other
-  transitionCodeAttr =
-    | "kind" "=" "\"" "edgeLabel" "\"" -- kind
-    | attr                             -- other
-  stateAttr = 
-    | "kind" "=" "\"" "ellipse" "\""   -- kind
-    | attr                             -- other
+  Group = "group" "{" Diagram+ "}"
+  Diagram = "diagram" "{" dgmid Object+ "}"
+  dgmid = "id" "=" lstr
+  attr = 
+    | ("id" | "parent" | "source" | "target") "=" lstr -- long
+    | name "=" str  -- other
   Object =
-    | name "{" transitionAttr+ "}"     -- transition
-    | name "{" transitionCodeAttr+ "}" -- transitionCode
-    | name "{" stateAttr+ "}"          -- state
+    | "transition" "{" attr+ "}"     -- transition
+    | "transitionCode" "{" attr+ "}" -- transitionCode
+    | "state" "{" attr+ "}"          -- state
   name = uletter ualnum*
   uletter = letter | "_"
   ualnum = alnum | "_"
   str = "\"" (~"\"" any)* "\""
+  lstr =
+    | "\"" (~"\"" ~"-" any)+ "-" (~"\"" any)+ "\"" -- long
+    | str -- other
 }

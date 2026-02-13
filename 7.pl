@@ -1,12 +1,12 @@
 
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-13",parent="yK0KRwzggwMbkE22hVbx-1",source="yK0KRwzggwMbkE22hVbx-17",target="yK0KRwzggwMbkE22hVbx-20").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-14",parent="yK0KRwzggwMbkE22hVbx-13",value="x > w<div>{reverse ()}</div>").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-15",parent="yK0KRwzggwMbkE22hVbx-1",source="yK0KRwzggwMbkE22hVbx-17",target="yK0KRwzggwMbkE22hVbx-23").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-16",parent="yK0KRwzggwMbkE22hVbx-15",value="x < 0<div>{reverse ()}</div>").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-17",parent="yK0KRwzggwMbkE22hVbx-1",value="idle").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-18",parent="yK0KRwzggwMbkE22hVbx-1",source="yK0KRwzggwMbkE22hVbx-20",target="yK0KRwzggwMbkE22hVbx-17").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-19",parent="yK0KRwzggwMbkE22hVbx-18",value="x <= w").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-20",parent="yK0KRwzggwMbkE22hVbx-1",value="wait for w re-crossing").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-21",parent="yK0KRwzggwMbkE22hVbx-1",source="yK0KRwzggwMbkE22hVbx-23",target="yK0KRwzggwMbkE22hVbx-17").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-22",parent="yK0KRwzggwMbkE22hVbx-21",value="x >= 0").
-transition( did="vXABhurDzZuKG-4kYwzf",id="yK0KRwzggwMbkE22hVbx-23",parent="yK0KRwzggwMbkE22hVbx-1",value="wait for zero re-crossing").
+transition( did="4kYwzf",id="13",parent="1",source="17",target="20").
+transitionCode( did="4kYwzf",id="14",parent="13",value="x > w<div>{reverse ()}</div>").
+transition( did="4kYwzf",id="15",parent="1",source="17",target="23").
+transitionCode( did="4kYwzf",id="16",parent="15",value="x < 0<div>{reverse ()}</div>").
+state( did="4kYwzf",id="17",parent="1",value="idle").
+transition( did="4kYwzf",id="18",parent="1",source="20",target="17").
+transitionCode( did="4kYwzf",id="19",parent="18",value="x <= w").
+state( did="4kYwzf",id="20",parent="1",value="wait for w re-crossing").
+transition( did="4kYwzf",id="21",parent="1",source="23",target="17").
+transitionCode( did="4kYwzf",id="22",parent="21",value="x >= 0").
+state( did="4kYwzf",id="23",parent="1",value="wait for zero re-crossing").

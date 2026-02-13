@@ -1,4 +1,4 @@
-% rewrite mr2json {
+% rewrite kinds {
   Top [name lb Array+ rb] = ‛«name» {«Array»}’
   Array [name lb attr* Object+ rb] = ‛\n«name» {\n«attr»«Object»\n}’
   attr [name eq str] = ‛ «name»«eq»«str»’

@@ -51,6 +51,8 @@ echo 6
 ${PBP}/t2t kinds <5.mr >6.mr
 echo 7
 ${PBP}/t2t mr2json <6.mr >7.json
+echo 7a
+${PBP}/t2t mr2pl <6.mr | python commarpar.py >7.pl
 
     
 

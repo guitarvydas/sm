@@ -1,6 +1,7 @@
-kinds {
-  Top = name "{" Array+ "}"
-  Array = name "{" attr* Object+ "}"
+mr2json {
+  Group = name "{" Diagram+ "}"
+  Diagram = name "{" dgmid Object+ "}"
+  dgmid = "id" "=" str
   attr = ~"kind" name "=" str
   transitionAttr =
     | "kind" "=" "\"" "edge" "\""      -- kind

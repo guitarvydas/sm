@@ -12,6 +12,5 @@ rmdiv {
   ediv = "&lt;/div&gt;"
   endbegindiv = "&quot;&gt;"
   beginshortdiv = "&lt;div&gt;"
-  endshortdiv = "&lt;/div&gt"
-
+  endshortdiv = "&lt;/div&gt;"
 }

@@ -3,7 +3,7 @@ emitTransitions(Diagram,IDstate,Dest,Guard,Tcode):-
         transition(did=Diagram, id=_, parent=_, source=IDstate, target=Dest, guard=Guard, transitioncode=Tcode),
 	(
 	    state(did=Diagram, id=Dest, parent=_, name=DestName, enter=_, exit=_),
-            format("%next ~q %if ~w ~w~n",[DestName,Guard,Tcode])
+            format("%next ~q %if (~w) ~w~n",[DestName,Guard,Tcode])
 	)
     ).
 
@@ -20,7 +20,6 @@ emitAllStates(Diagram):-
     ).
 
 emit:-
-    consult("9.pl"),
     forall(
 	diagram(did=Diagram),
 	emitAllStates(Diagram)

@@ -11,7 +11,6 @@ mergeCode(Did):-
     ).
 
 run:-
-    consult("7.pl"),
     forall(diagram(did=Did),mergeCode(Did)),
     listing(diagram/1),
     listing(state/4),

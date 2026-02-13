@@ -37,28 +37,26 @@ cd "${PBPWD}"
 
 ######### commands specific to this project #############
 
-# echo 1
-# ${PBP}/t2t rmgeometry <looptest.drawio >1.mr
-# echo 2
-# ${PBP}/t2t cull <1.mr >2.mr
-# echo 3
-# ${PBP}/t2t rmdiv <2.mr >3.mr
-# echo 4
-# ${PBP}/t2t rmspan <3.mr >4.mr
-# echo 5
-# ${PBP}/t2t unhtml <4.mr >5.mr
-# echo 6
-# ${PBP}/t2t kinds <5.mr >6.mr
-# echo 7
-# ${PBP}/t2t mr2json <6.mr >7.json
-# echo 7a
-# ${PBP}/t2t mr2pl <6.mr | python commarpar.py >7.pl
-# echo 8
-# swipl -s y.pl -g 'run.' -g 'halt.' >8.pl
-# echo 9
-# ${PBP}/t2t code <8.pl >9.pl
-
-${PBP}/t2t code <junk.pl >junk2.pl
+echo 1
+${PBP}/t2t rmgeometry <looptest.drawio >1.mr
+echo 2
+${PBP}/t2t cull <1.mr >2.mr
+echo 3
+${PBP}/t2t rmdiv <2.mr >3.mr
+echo 4
+${PBP}/t2t rmspan <3.mr >4.mr
+echo 5
+${PBP}/t2t unhtml <4.mr >5.mr
+echo 6
+${PBP}/t2t kinds <5.mr >6.mr
+echo 7
+${PBP}/t2t mr2json <6.mr >7.json
+echo 7a
+${PBP}/t2t mr2pl <6.mr | python commarpar.py >7.pl
+echo 8
+swipl -s y.pl -g 'run.' -g 'halt.' >8.pl
+echo 9
+${PBP}/t2t code <8.pl >9.pl
 
 # ${PBP}/t2t sm sm-metapy <"${fname}.sm" |\
 #     ${PBP}/brace_indent |\

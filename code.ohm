@@ -1,6 +1,7 @@
 code {
   main = macro+
   macro =
+    | space -- space
     | applySyntactic<MatchState> -- state
     | applySyntactic<MatchTransition> -- transition
     | any -- other

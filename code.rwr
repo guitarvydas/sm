@@ -1,10 +1,11 @@
 % rewrite code {
   main [cs+] = ‛«cs»’
+  macro_space [ws] = ‛«ws»’
   macro_state [s] = ‛«s»\n’
   macro_transition [t] = ‛«t»\n’
   macro_other [c] = ‛«c»’
-  MatchState [_state lp attrs+ rp dot] = ‛\nstate(«attrs»).’
-  MatchTransition [_transition lp attrs+ rp dot] = ‛\ntransition(«attrs»).’
+  MatchState [_state lp attrs+ rp dot] = ‛state(«attrs»).’
+  MatchTransition [_transition lp attrs+ rp dot] = ‛transition(«attrs»).’
 
   stateAttr_code [v eq c] = ‛«c»’
   stateAttr_other [a] = ‛«a»’

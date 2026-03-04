@@ -1,0 +1,24 @@
+#!/bin/bash
+
+######### commands specific to this project #############
+
+echo -n '1 2 3 ...'
+${PBP}/t2t rmgeometry <${fname}.drawio |\
+    ${PBP}/t2t cull |\
+    ${PBP}/t2t rmdiv |\
+    ${PBP}/t2t rmspan |\
+    ${PBP}/t2t unhtml |\
+    ${PBP}/t2t kinds |\
+    ${PBP}/t2t mr2json >7.json
+echo -n '7a '
+${PBP}/t2t mr2pl <6.mr | python commarpar.py |\
+    swipl -l /dev/stdin -g '[mergecode].' -g 'run.' -g 'halt.' |\
+    ${PBP}/t2t code |\
+    swipl -l /dev/stdin -g '[emit].' -g 'emit.' -g 'halt.' | ${PBP}/brace_indent >${fname}.sm
+echo -n 'fini '
+
+
+############################
+
+
+

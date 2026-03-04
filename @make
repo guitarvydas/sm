@@ -1,19 +1,28 @@
 #!/bin/bash
 
-### sm - transmogrify $2.sm to $2.py where $2.sm is a simple state machine description ###
+### string interpolation example ###
 
 set -e
 export SHELLOPTS
+shopt -s nullglob
+
+# Durng development of pbp-dev, I export PBP_ROOT and want to make a fresh copy of it every time
+# skip this step if PBP_ROOT is not set
+# DO NOT define PBP_ROOT under normal circustances (this is a kludge useb during pbp-dev development only)
+if [ -d "${PBP_ROOT}" ]; then
+    echo "refreshing ./pbp"
+    "${PBP_ROOT}/import-minimal.bash"
+fi
 
 # set up env vars depending on whether this script was called from elsewhere or is the top level
 if [ "$#" -eq 0 ]; then
     # no arguments - top level build
     # current working directory
     export PBPWD=$(pwd)
-    export PBP=~/projects/pbp-dev
+    export PBP="$(pwd)/pbp"
     export PYTHONPATH="${PBP}/kernel:${PYTHONPATH}"
     export PBPCALLER=$PBPWD
-    fname="looptest"
+    fname="example"
     ${PBP}/resetlog
 
 elif [ "$#" -eq 3 ]; then
@@ -31,38 +40,17 @@ else
     exit 1
 fi
 
-rm -f out.*
+export SELF="${RANDOM}$$"
+
+rm -f ${SELF}*
+rm -f *.mr
 rm -f *.json
+rm -f temp.*
 cd "${PBPWD}"
 
-######### commands specific to this project #############
+export PATH="${PBP}:${PATH}"
 
-echo -n '1 '
-${PBP}/t2t rmgeometry <looptest.drawio >1.mr
-echo -n '2 '
-${PBP}/t2t cull <1.mr >2.mr
-echo -n '3 '
-${PBP}/t2t rmdiv <2.mr >3.mr
-echo -n '4 '
-${PBP}/t2t rmspan <3.mr >4.mr
-echo -n '5 '
-${PBP}/t2t unhtml <4.mr >5.mr
-echo -n '6 '
-${PBP}/t2t kinds <5.mr >6.mr
-echo -n '7 '
-${PBP}/t2t mr2json <6.mr >7.json
-echo -n '7a '
-${PBP}/t2t mr2pl <6.mr | python commarpar.py >7.pl
-echo -n '8 '
-swipl -g '[y].' -g '[7].' -g 'run.' -g 'halt.' >8.pl
-echo -n '9 '
-${PBP}/t2t code <8.pl >9.pl
-echo -n '10 '
-swipl -g '[w].' -g '[9].' -g 'emit.' -g 'halt.' | ${PBP}/brace_indent >looptest.sm
-echo -n 'fini '
-
-
-############################
+./@makec ${fname}
 
 
 
@@ -73,7 +61,7 @@ then
     echo ">> ERROR <<"
     cat out.✗
 else
-    echo
-    cat looptest.sm
+    rm -f temp.*
 fi
+
 

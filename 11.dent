@@ -1,0 +1,44 @@
+
+
+def enter_idle ():⤷
+pass⤶
+def step_idle ():⤷
+if (x > w) :⤷
+⤶ :⤷
+exit_idle ()
+enter_wait_for_w_re-crossing ()⤶:⤷reverse ()⤶
+if (x < 0) :⤷
+⤶ :⤷
+exit_idle ()
+enter_wait_for_zero_re-crossing ()⤶:⤷reverse ()⤶
+        ⤶
+def exit_idle ():⤷
+pass⤶
+
+def enter_wait_for_w_re-crossing ():⤷
+pass⤶
+def step_wait_for_w_re-crossing ():⤷
+if (x <= w) :⤷
+⤶ :⤷
+exit_wait_for_w_re-crossing ()
+enter_idle ()⤶⤶
+def exit_wait_for_w_re-crossing ():⤷
+pass⤶
+
+def enter_wait_for_zero_re-crossing ():⤷
+pass⤶
+def step_wait_for_zero_re-crossing ():⤷
+if (x >= 0) :⤷
+⤶ :⤷
+exit_wait_for_zero_re-crossing ()
+enter_idle ()⤶⤶
+def exit_wait_for_zero_re-crossing ():⤷
+pass⤶
+
+❴:⤷
+
+"idle": idle,
+"wait for w re-crossing": wait_for_w_re-crossing,
+"wait for zero re-crossing": wait_for_zero_re-crossing,⤶
+❵ [self.state] ()
+

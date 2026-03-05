@@ -11,8 +11,13 @@ sm {
     | "{" stuff* "}" -- rec
     | applySyntactic<Next> -- nextStatement
     | ~"{" ~"}" any -- other
-  Next = "%next" name
+  Next = "%next" name "%if" expr transitionCode?
   name = 
     | "'" (~"'" any)+ "'"    -- squoted
     | "\"" (~"\"" any)+ "\""  -- dquoted
+  expr = "(" (~")" any)+ ")"
+  transitionCode = "{" transitionCodeInnards "}"
+  transitionCodeInnards =
+    | "{" transitionCode* "}" -- rec
+    | ~"{" ~"}" any -- other
 }

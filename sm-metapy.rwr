@@ -18,7 +18,11 @@
   stuff_rec [lb stuff* rb] = ‛«lb»«stuff»«rb»’
   stuff_nextStatement [n] = ‛«n»’
   stuff_other [c] = ‛«c»’
-  Next [_ name] = ‛\nexit_⎨legalize ‛⟪statename⟫’⎬ ()\nenter_⎨legalize ‛«name»’⎬ ()’
+  Next [_ name _if e transitionCode] = ‛\nif «e» {\n«transitionCode»} {\nexit_⎨legalize ‛⟪statename⟫’⎬ ()\nenter_⎨legalize ‛«name»’⎬ ()}’
   name_squoted [lq cs+ rq] = ‛«cs»’
   name_dquoted [lq cs+ rq] = ‛«cs»’
+  expr [lb cs+ rb] = ‛«lb»«cs»«rb»’
+  transitionCode [lb code rb] = ‛«code»’
+  transitionCodeInnards_rec [lb cs* rb] = ‛«lb»«cs»«rb»’
+  transitionCodeInnards_other [c] = ‛«c»’
 }

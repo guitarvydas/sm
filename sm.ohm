@@ -1,6 +1,6 @@
 sm {
   Main = State+
-  State = "{" name Enter Step Exit "}"
+  State = "state" name "{" Enter Step Exit "}"
   Enter = action
   Step = action
   Exit = action
@@ -12,5 +12,7 @@ sm {
     | applySyntactic<Next> -- nextStatement
     | ~"{" ~"}" any -- other
   Next = "%next" name
-  name = "'" (~"'" any)+ "'"
+  name = 
+    | "'" (~"'" any)+ "'"    -- squoted
+    | "\"" (~"\"" any)+ "\""  -- dquoted
 }

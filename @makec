@@ -28,6 +28,10 @@ swipl -g '[w].' -g '[9].' -g 'emit.' -g 'halt.' | ${PBP}/brace_indent >looptest.
 
 cat looptest.sm
 
+${PBP}/t2t sm sm-metapy <looptest.sm >10.mpy
+python mpy2dent.py <10.mpy
+
+
 echo -n 'fini '
 
 

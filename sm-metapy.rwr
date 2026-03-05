@@ -3,7 +3,7 @@
 % rewrite sm_metapy {
   Main [State+] = ‛«State»⎨create_stepper⎬’
   
-  State [lb name Enter Step Exit rb] =
+  State [_state name lb Enter Step Exit rb] =
     ⎡ statename=‛«name»’
       ⎡ ⎨memo_state_name ‛«name»’⎬
         ‛\n«Enter»«Step»«Exit»’
@@ -19,5 +19,6 @@
   stuff_nextStatement [n] = ‛«n»’
   stuff_other [c] = ‛«c»’
   Next [_ name] = ‛\nexit_⎨legalize ‛⟪statename⟫’⎬ ()\nenter_⎨legalize ‛«name»’⎬ ()’
-  name [lq cs+ rq] = ‛«cs»’
+  name_squoted [lq cs+ rq] = ‛«cs»’
+  name_dquoted [lq cs+ rq] = ‛«cs»’
 }

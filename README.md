@@ -13,6 +13,8 @@ conversion of `looptest.drawio` to `looptest.sm` runs
 - step 10 uses swipl again
 - result in `looptest.sm`
 
+- doesn't convert the result `looptest.sm` into Python yet
+
 # usage
 `./@make`
 

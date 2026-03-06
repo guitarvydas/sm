@@ -10,18 +10,20 @@
       ⎦
     ⎦
 
-  Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ (){«a»}’
-  Step [a] = ‛\ndef step_⎨legalize ‛⟪statename⟫’⎬ (){«a»}’
-  Exit [a] = ‛\ndef exit_⎨legalize ‛⟪statename⟫’⎬ (){«a»}’
+  Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ ():⤷«a»⤶’
+  Step [a] = ‛\ndef step_⎨legalize ‛⟪statename⟫’⎬ ():⤷«a»⤶’
+  Exit [a] = ‛\ndef exit_⎨legalize ‛⟪statename⟫’⎬ ():⤷«a»⤶’
   action_empty [_] = ‛\npass’
   action_other [lb stuff* rb] = ‛«stuff»’
   stuff_rec [lb stuff* rb] = ‛«lb»«stuff»«rb»’
   stuff_nextStatement [n] = ‛«n»’
   stuff_other [c] = ‛«c»’
-  Next [_ name _if e transitionCode] = ‛\nif «e» {\n«transitionCode»} {\nexit_⎨legalize ‛⟪statename⟫’⎬ ()\nenter_⎨legalize ‛«name»’⎬ ()}’
+  Next_empty [_ name _if e transitionCodeEmpty] = ‛\nif «e»:⤷\nexit_⎨legalize ‛⟪statename⟫’⎬ ()\nenter_⎨legalize ‛«name»’⎬ ()⤶’
+  Next_code  [_ name _if e transitionCode] = ‛\nif «e»:⤷\n«transitionCode»\nexit_⎨legalize ‛⟪statename⟫’⎬ ()\nenter_⎨legalize ‛«name»’⎬ ()⤶’
   name_squoted [lq cs+ rq] = ‛«cs»’
   name_dquoted [lq cs+ rq] = ‛«cs»’
   expr [lb cs+ rb] = ‛«lb»«cs»«rb»’
+  transitionCodeEmpty [lb rb] = ‛’
   transitionCode [lb code rb] = ‛«code»’
   transitionCodeInnards_rec [lb cs* rb] = ‛«lb»«cs»«rb»’
   transitionCodeInnards_other [c] = ‛«c»’

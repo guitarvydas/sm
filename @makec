@@ -29,8 +29,9 @@ fname=looptest
 # cat looptest.sm
 
 ${PBP}/t2t sm sm-metapy <looptest.sm >10.mpy
-python mpy2dent.py <10.mpy >11.dent
-${PBP}/indent <11.dent
+cat 10.mpy
+# python mpy2dent.py <10.mpy >11.dent
+# ${PBP}/indent <11.dent
 
 
 

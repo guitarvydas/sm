@@ -1,0 +1,52 @@
+[
+"diagram" : {
+id="vXABhurDzZuKG-4kYwzf",
+[
+"transition" : {
+id="yK0KRwzggwMbkE22hVbx-13",
+parent="yK0KRwzggwMbkE22hVbx-1",
+source="yK0KRwzggwMbkE22hVbx-17",
+target="yK0KRwzggwMbkE22hVbx-20",},
+"transitionCode" : {
+id="yK0KRwzggwMbkE22hVbx-14",
+parent="yK0KRwzggwMbkE22hVbx-13",
+value="x > w{reverse ()}",},
+"transition" : {
+id="yK0KRwzggwMbkE22hVbx-15",
+parent="yK0KRwzggwMbkE22hVbx-1",
+source="yK0KRwzggwMbkE22hVbx-17",
+target="yK0KRwzggwMbkE22hVbx-23",},
+"transitionCode" : {
+id="yK0KRwzggwMbkE22hVbx-16",
+parent="yK0KRwzggwMbkE22hVbx-15",
+value="x < 0{reverse ()}",},
+"state" : {
+id="yK0KRwzggwMbkE22hVbx-17",
+parent="yK0KRwzggwMbkE22hVbx-1",
+value="idle",},
+"transition" : {
+id="yK0KRwzggwMbkE22hVbx-18",
+parent="yK0KRwzggwMbkE22hVbx-1",
+source="yK0KRwzggwMbkE22hVbx-20",
+target="yK0KRwzggwMbkE22hVbx-17",},
+"transitionCode" : {
+id="yK0KRwzggwMbkE22hVbx-19",
+parent="yK0KRwzggwMbkE22hVbx-18",
+value="x <= w",},
+"state" : {
+id="yK0KRwzggwMbkE22hVbx-20",
+parent="yK0KRwzggwMbkE22hVbx-1",
+value="wait for w recrossing",},
+"transition" : {
+id="yK0KRwzggwMbkE22hVbx-21",
+parent="yK0KRwzggwMbkE22hVbx-1",
+source="yK0KRwzggwMbkE22hVbx-23",
+target="yK0KRwzggwMbkE22hVbx-17",},
+"transitionCode" : {
+id="yK0KRwzggwMbkE22hVbx-22",
+parent="yK0KRwzggwMbkE22hVbx-21",
+value="x >= 0",},
+"state" : {
+id="yK0KRwzggwMbkE22hVbx-23",
+parent="yK0KRwzggwMbkE22hVbx-1",
+value="wait for zero recrossing",},]}]

@@ -3,8 +3,8 @@
 diagram(did=i4kYwzf).
 
 state(did=i4kYwzf,id=i17,parent=i1,name="idle", enter="", exit="").
-state(did=i4kYwzf,id=i20,parent=i1,name="wait for w re-crossing", enter="", exit="").
-state(did=i4kYwzf,id=i23,parent=i1,name="wait for zero re-crossing", enter="", exit="").
+state(did=i4kYwzf,id=i20,parent=i1,name="wait for w recrossing", enter="", exit="").
+state(did=i4kYwzf,id=i23,parent=i1,name="wait for zero recrossing", enter="", exit="").
 :- dynamic transition/6.
 
 transition(did=i4kYwzf,id=i13,parent=i1,source=i17,target=i20,guard="x > w", transitioncode="{reverse ()}").

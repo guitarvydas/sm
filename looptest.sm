@@ -1,44 +1,24 @@
-{
-    'idle'
+
+state "idle" {
     {}
     {
-      if x < 0 {
-          %next 'wait for zero recrossing' }
-      elif x > self.width {
-          %next 'wait for w recrossing' }
-      else {
-          Loop ()}
-    }
+        %next "wait for w recrossing" %when (x > w) {reverse ()}
+        %next "wait for zero recrossing" %when (x < 0) {reverse ()}
+        }
     {}
-}
-
-{
-    'wait for zero recrossing'
-    {
-      Reverse ()
-      Loop ()
     }
-    {
-      if x >= 0 {
-	  Loop ()
-	  %next 'idle'}
-    }
+state "wait for w recrossing" {
     {}
-}
-
-{
-    'wait for w recrossing'
     {
-        Reverse ()
-        Loop ()
-    }
-    {
-      if x <= self.width {
-	  Loop ()
-	  %next 'idle'}
-    }
+        %next "idle" %when (x <= w)
+        }
     {}
-}
-
-
+    }
+state "wait for zero recrossing" {
+    {}
+    {
+        %next "idle" %when (x >= 0)
+        }
+    {}
+    }
 

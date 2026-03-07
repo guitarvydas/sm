@@ -1,0 +1,9 @@
+#!/bin/bash
+export PBP=${HOME}/pbp-dev
+SRC=looptest.sm
+./REFRESH-BOOTSTRAP
+${PBP}/t2t sm.ohm sm-metapy.rwr <${SRC} |\
+    ${PBP}/indent |\
+    python rigidindent.py '            ' > temp.3 |\
+    ./delBlankLines > out.py
+cat out.py

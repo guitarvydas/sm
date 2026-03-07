@@ -1,7 +1,0 @@
-SRC = looptest.sm
-all:
-	./pbp/t2t.bash . ./pbp sm.ohm sm-mpy.rwr support.mjs - <$(SRC) | python ./mpy2dent.py | python rebrace.py | node pbp/tas/indenter.mjs | python rigidindent.py '            ' > out.py
-	cat out.py
-
-identity:
-	./pbp/t2t.bash . ./pbp identity-sm.ohm identity-sm.rwr support.mjs - <$(SRC)

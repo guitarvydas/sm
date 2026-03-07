@@ -1,0 +1,40 @@
+#!/bin/bash
+
+######### commands specific to this project #############
+fname=looptest
+
+echo -n '1 '
+${PBP}/t2t rmgeometry <looptest.drawio >1.mr
+echo -n '2 '
+${PBP}/t2t cull <1.mr >2.mr
+echo -n '3 '
+${PBP}/t2t rmdiv <2.mr >3.mr
+echo -n '4 '
+${PBP}/t2t rmspan <3.mr >4.mr
+echo -n '5 '
+${PBP}/t2t unhtml <4.mr >5.mr
+echo -n '6 '
+${PBP}/t2t kinds <5.mr >6.mr
+echo -n '7 '
+${PBP}/t2t mr2json <6.mr >7.json
+echo -n '7a '
+${PBP}/t2t mr2pl <6.mr | python commarpar.py >7.pl
+echo -n '8 '
+swipl -g '[y].' -g '[7].' -g 'run.' -g 'halt.' >8.pl
+echo -n '9 '
+${PBP}/t2t code <8.pl >9.pl
+echo -n '10 '
+swipl -g '[w].' -g '[9].' -g 'emit.' -g 'halt.' | ${PBP}/brace_indent >looptest.sm
+
+${PBP}/t2t sm sm-metapy <looptest.sm >10.mpy
+${PBP}/indent <10.mpy >11.py
+python replace.py "✣" "${fname}" <11.py >"${fname}".py
+cat "${fname}.py"
+
+echo -n 'fini '
+
+
+############################
+
+
+

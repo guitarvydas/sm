@@ -1,7 +1,11 @@
+// decode.mjs
+import { decode } from 'html-entities';
+
+
 let state_names = [];
 
 function legalize (s) {
-    return s.replace (" ", "_");
+    return s.replace (/ /g, "_");
 }
 
 function memo_state_name (s) {
@@ -9,13 +13,21 @@ function memo_state_name (s) {
     return "";
 }
 
+function get_first_state_name () {
+    return state_names [0];
+}
+
 function create_stepper () {
-    let result = "\n\n〖\n";
+    let result = "{⤷";
     state_names.forEach (name => {
-	result += `"${name}": ${legalize (name)},\n`;
+	result += `\n"${name}": self.step_${legalize (name)},`;
     });
-    result += "〗 [self.state] ()\n";
+    result += "⤶\n} [self.state] ()\n";
     return result;
 }
 
-    
+function decodeHTML(s) {
+    let prev;
+    do { prev = s; s = decode(s); } while (s !== prev);
+    return s;
+}

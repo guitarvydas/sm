@@ -4,15 +4,11 @@
 fname=looptest
 
 echo -n '1 '
-${PBP}/t2t rmgeometry <looptest.drawio >1.mr
-echo -n '2 '
-${PBP}/t2t cull <1.mr >2.mr
-echo -n '3 '
-${PBP}/t2t rmdiv <2.mr >3.mr
-echo -n '4 '
-${PBP}/t2t rmspan <3.mr >4.mr
-echo -n '5 '
-${PBP}/t2t unhtml <4.mr >5.mr
+${PBP}/t2t rmgeometry <looptest.drawio |\
+    ${PBP}/t2t cull |\
+    ${PBP}/t2t rmdiv |\
+    ${PBP}/t2t rmspan |\
+    ${PBP}/t2t unhtml >5.mr
 echo -n '6 '
 ${PBP}/t2t kinds <5.mr >6.mr
 echo -n '7 '

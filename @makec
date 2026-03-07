@@ -3,31 +3,27 @@
 ######### commands specific to this project #############
 fname=looptest
 
-echo -n '1 '
+fanout=fanout-${RANDOM}
+
 ${PBP}/t2t rmgeometry <looptest.drawio |\
     ${PBP}/t2t cull |\
     ${PBP}/t2t rmdiv |\
     ${PBP}/t2t rmspan |\
-    ${PBP}/t2t unhtml >5.mr
-echo -n '6 '
-${PBP}/t2t kinds <5.mr >6.mr
-echo -n '7 '
-${PBP}/t2t mr2json <6.mr >7.json
-echo -n '7a '
-${PBP}/t2t mr2pl <6.mr | python commarpar.py >7.pl
-echo -n '8 '
-swipl -g '[y].' -g '[7].' -g 'run.' -g 'halt.' >8.pl
-echo -n '9 '
-${PBP}/t2t code <8.pl >9.pl
-echo -n '10 '
-swipl -g '[w].' -g '[9].' -g 'emit.' -g 'halt.' | ${PBP}/brace_indent >looptest.sm
-
-${PBP}/t2t sm sm-metapy <looptest.sm >10.mpy
-${PBP}/indent <10.mpy >11.py
-python replace.py "✣" "${fname}" <11.py >"${fname}".py
+    ${PBP}/t2t unhtml |\
+    ${PBP}/t2t kinds >"${fanout}".mr
+${PBP}/t2t mr2json <"${fanout}".mr >mr.json
+${PBP}/t2t mr2pl <"${fanout}".mr | python commarpar.py >mr.pl
+swipl -g '[mergeCode].' -g '[mr].' -g 'run.' -g 'halt.' |\
+    ${PBP}/t2t code >merged.pl
+swipl -g '[emit].' -g '[merged].' -g 'emit.' -g 'halt.' |\
+    ${PBP}/brace_indent |\
+    tee ${fname}.sm |\
+    ${PBP}/t2t sm sm-metapy |\
+    ${PBP}/indent |\
+    python replace.py "✣" "${fname}" >"${fname}".py
 cat "${fname}.py"
 
-echo -n 'fini '
+rm -f "${fanout}"
 
 
 ############################

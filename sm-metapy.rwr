@@ -5,7 +5,8 @@
     ‛class SM_✣:⤷
       «State»
       def __init__ (self):⤷
-	  self.enter_⎨get_first_state_name⎬⤶
+          self.state = None
+	  self.enter_⎨get_first_state_name⎬ ()⤶
       def step (self):⤷
           ⎨create_stepper⎬⤶⤶
       sm = SM_✣ ()’
@@ -17,7 +18,7 @@
       ⎦
     ⎦
 
-  Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\nself.state = ⎨legalize ‛⟪statename⟫’⎬\n«a»⤶’
+  Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\nself.state = "⟪statename⟫"\n«a»⤶’
   Step [a] = ‛\ndef step_⎨legalize ‛⟪statename⟫’⎬ (self):⤷«a»⤶’
   Exit [a] = ‛\ndef exit_⎨legalize ‛⟪statename⟫’⎬ (self):⤷«a»⤶’
   enteraction_empty [_] = ‛’
@@ -27,7 +28,7 @@
   stuff_rec [lb stuff* rb] = ‛«lb»«stuff»«rb»’
   stuff_nextStatement [n] = ‛«n»’
   stuff_other [c] = ‛«c»’
-  Next [_next name _when e transitionCode?] = ‛\nif «e»:⤷\nexit_⎨legalize ‛⟪statename⟫’⎬ ()«transitionCode»\nenter_⎨legalize ‛«name»’⎬ ()⤶’
+  Next [_next name _when e transitionCode?] = ‛\nif «e»:⤷\nself.exit_⎨legalize ‛⟪statename⟫’⎬ ()«transitionCode»\nself.enter_⎨legalize ‛«name»’⎬ ()⤶’
   name_squoted [lq cs+ rq] = ‛«cs»’
   name_dquoted [lq cs+ rq] = ‛«cs»’
   expr [lb cs+ rb] = ‛«lb»«cs»«rb»’

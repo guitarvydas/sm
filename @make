@@ -1,18 +1,10 @@
 #!/bin/bash
 
-### string interpolation example ###
-
-set -e
+set -eE
 export SHELLOPTS
 shopt -s nullglob
 
-# Durng development of pbp-dev, I export PBP_ROOT and want to make a fresh copy of it every time
-# skip this step if PBP_ROOT is not set
-# DO NOT define PBP_ROOT under normal circustances (this is a kludge useb during pbp-dev development only)
-if [ -d "${PBP_ROOT}" ]; then
-    echo "refreshing ./pbp"
-    "${PBP_ROOT}/import-minimal.bash"
-fi
+trap '[ -f "out.✗" ] && (echo ; cat "out.✗")' ERR
 
 # set up env vars depending on whether this script was called from elsewhere or is the top level
 if [ "$#" -eq 0 ]; then
@@ -22,8 +14,8 @@ if [ "$#" -eq 0 ]; then
     export PBP="$(pwd)/pbp"
     export PYTHONPATH="${PBP}/kernel:${PYTHONPATH}"
     export PBPCALLER=$PBPWD
-    fname="example"
-    ${PBP}/resetlog
+    fname="<top>"
+    "${PBP}"/resetlog
 
 elif [ "$#" -eq 3 ]; then
     # exactly three arguments
@@ -42,26 +34,17 @@ fi
 
 export SELF="${RANDOM}$$"
 
-rm -f ${SELF}*
 rm -f *.mr
 rm -f *.json
 rm -f temp.*
+rm -f out.*
 cd "${PBPWD}"
 
 export PATH="${PBP}:${PATH}"
 
 ./@makec ${fname}
 
-
-
-## move results to caller's working directory, if no errors
-if [ -f out.✗ ]
-then
-    echo
-    echo ">> ERROR <<"
-    cat out.✗
-else
-    rm -f temp.*
-fi
+rm -f temp.*
+rm -f ${SELF}*
 
 

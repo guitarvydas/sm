@@ -1,0 +1,11 @@
+Mon Apr 06 16:53:22  2026
+in pbp/t2t /kinds/ T2TVERBOSE=
+in pbp/t2t /cull/ T2TVERBOSE=
+in pbp/t2t /rmspan/ T2TVERBOSE=
+in pbp/t2t /unhtml/ T2TVERBOSE=
+in pbp/t2t /rmgeometry/ T2TVERBOSE=
+in pbp/t2t /rmdiv/ T2TVERBOSE=
+in pbp/t2t /mr2json/ T2TVERBOSE=
+in pbp/t2t /mr2pl/ T2TVERBOSE=
+in pbp/t2t /code/ T2TVERBOSE=
+in pbp/t2t /sm sm-metapy/ T2TVERBOSE=

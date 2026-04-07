@@ -1,13 +1,25 @@
 import sys
-import looptest
+import kernel0d as zd
 
-w = 100
+initial_x = 25
 
-def reverse():
-    print(f'reverse')
+def handler (eh,mev):
+    global initial_x
+    try:
+        zd.send (eh, "x", str (initial_x), mev)
+    except (e):
+        zd.send (eh, "✗", "*** error in tester.py ***", mev)
+        
+def reset_handler (eh):
+    global initial_x
+    initial_x = 25
 
-uut = looptest.SM_looptest(context=sys.modules['__main__'])
+def instantiate (reg,owner,name, arg, template_data):
+    name_with_id = zd.gensymbol ( "Tester")
+    return zd.make_leaf ( name_with_id, owner, None, arg, handler, reset_handler)
 
-for x in list(range(25, 126, 25)) + list(range(100, -26, -25)) + list(range(-25, 51, 25)):
-    print(f'x={x:4d}  state={uut.state}')
-    uut.step()
+# define template
+def install (reg):
+    zd.register_component (reg, zd.mkTemplate ("Tester", None, instantiate))
+
+

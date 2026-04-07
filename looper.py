@@ -1,48 +1,48 @@
-class SM_looptest:
+class SM_looper:
     
     def enter_idle (self):
-        c = self.ctx
+        e = self.env
         self.state = "idle"
         
     def step_idle (self):
-        c = self.ctx
-        if (c.x >= c.w):
+        e = self.env
+        if (e.x >= e.w):
             self.exit_idle ()
-            c.reverse ()
+            e.reverse ()
             self.enter_wait_for_w_recrossing ()
-        if (c.x <= 0):
+        if (e.x <= 0):
             self.exit_idle ()
-            c.reverse ()
+            e.reverse ()
             self.enter_wait_for_zero_recrossing ()
     def exit_idle (self):
-        c = self.ctx
+        e = self.env
         pass
     def enter_wait_for_w_recrossing (self):
-        c = self.ctx
+        e = self.env
         self.state = "wait for w recrossing"
         
     def step_wait_for_w_recrossing (self):
-        c = self.ctx
-        if (c.x < c.w):
+        e = self.env
+        if (e.x < e.w):
             self.exit_wait_for_w_recrossing ()
             self.enter_idle ()
     def exit_wait_for_w_recrossing (self):
-        c = self.ctx
+        e = self.env
         pass
     def enter_wait_for_zero_recrossing (self):
-        c = self.ctx
+        e = self.env
         self.state = "wait for zero recrossing"
         
     def step_wait_for_zero_recrossing (self):
-        c = self.ctx
-        if (c.x >= 0):
+        e = self.env
+        if (e.x >= 0):
             self.exit_wait_for_zero_recrossing ()
             self.enter_idle ()
     def exit_wait_for_zero_recrossing (self):
-        c = self.ctx
+        e = self.env
         pass
-    def __init__ (self, context):
-        self.ctx = context
+    def __init__ (self, env):
+        self.env = env
         self.state = None
         self.enter_idle ()
     def step (self):

@@ -19,9 +19,9 @@
       ⎦
     ⎦
 
-  Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\nc = self.env\nself.state = "⟪statename⟫"\n«a»⤶’
-  Step [a] = ‛\ndef step_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\nc = self.env«a»⤶’
-  Exit [a] = ‛\ndef exit_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\nc = self.env«a»⤶’
+  Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\ne = self.env\nself.state = "⟪statename⟫"\n«a»⤶’
+  Step [a] = ‛\ndef step_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\ne = self.env«a»⤶’
+  Exit [a] = ‛\ndef exit_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\ne = self.env«a»⤶’
   enteraction_empty [_] = ‛’
   enteraction_other [a] = ‛«a»’
   action_empty [_] = ‛\npass’

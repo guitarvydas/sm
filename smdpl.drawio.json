@@ -39,35 +39,35 @@
         "id": 39
       },
       {
-        "name": ":$ swipl -g '[mergeCode].' -l /dev/stdin -g 'run.' -g 'halt.' ",
+        "name": ":$ _/t2t code",
         "id": 43
       },
       {
-        "name": ":$ _/t2t code",
+        "name": ":$ _/brace_indent",
         "id": 47
       },
       {
-        "name": ":$ _/brace_indent",
+        "name": ":$ _/t2t sm sm-metapy",
         "id": 51
       },
       {
-        "name": ":$ _/t2t sm sm-metapy",
+        "name": ":$ _/indent",
         "id": 55
       },
       {
-        "name": ":$ _/indent",
+        "name": "Read Text File",
         "id": 59
       },
       {
-        "name": "Read Text File",
+        "name": "🚫",
         "id": 63
       },
       {
-        "name": "🚫",
-        "id": 67
+        "name": ":$ swipl -g '[emit].' -l /dev/stdin -g 'emit.' -g 'halt.'",
+        "id": 66
       },
       {
-        "name": ":$ swipl -g '[emit].' -l /dev/stdin -g 'emit.' -g 'halt.'",
+        "name": ":$ swipl -g '[mergeCode].' -l /dev/stdin -g 'run.' -g 'halt.'",
         "id": 70
       }
     ],
@@ -78,7 +78,7 @@
         "target_port": "",
         "target": {
           "name": "Read Text File",
-          "id": 63
+          "id": 59
         }
       },
       {
@@ -190,25 +190,12 @@
         "source_port": "",
         "target_port": "",
         "source": {
-          "name": ":$ swipl -g '[mergeCode].' -l /dev/stdin -g 'run.' -g 'halt.' ",
-          "id": 43
-        },
-        "target": {
-          "name": ":$ _/t2t code",
-          "id": 47
-        }
-      },
-      {
-        "dir": 1,
-        "source_port": "",
-        "target_port": "",
-        "source": {
           "name": ":$ python commarpar.py",
           "id": 39
         },
         "target": {
-          "name": ":$ swipl -g '[mergeCode].' -l /dev/stdin -g 'run.' -g 'halt.' ",
-          "id": 43
+          "name": ":$ swipl -g '[mergeCode].' -l /dev/stdin -g 'run.' -g 'halt.'",
+          "id": 70
         }
       },
       {
@@ -217,11 +204,11 @@
         "target_port": "",
         "source": {
           "name": ":$ _/t2t sm sm-metapy",
-          "id": 55
+          "id": 51
         },
         "target": {
           "name": ":$ _/indent",
-          "id": 59
+          "id": 55
         }
       },
       {
@@ -230,11 +217,11 @@
         "target_port": "",
         "source": {
           "name": ":$ _/brace_indent",
-          "id": 51
+          "id": 47
         },
         "target": {
           "name": ":$ _/t2t sm sm-metapy",
-          "id": 55
+          "id": 51
         }
       },
       {
@@ -243,7 +230,7 @@
         "target_port": "",
         "source": {
           "name": "Read Text File",
-          "id": 63
+          "id": 59
         },
         "target": {
           "name": ":$ _/t2t rmgeometry",
@@ -256,11 +243,11 @@
         "target_port": "",
         "source": {
           "name": ":$ _/indent",
-          "id": 59
+          "id": 55
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -269,11 +256,11 @@
         "target_port": "",
         "source": {
           "name": ":$ _/t2t sm sm-metapy",
-          "id": 55
+          "id": 51
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -282,11 +269,11 @@
         "target_port": "",
         "source": {
           "name": ":$ _/brace_indent",
-          "id": 51
+          "id": 47
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -295,11 +282,11 @@
         "target_port": "",
         "source": {
           "name": ":$ _/t2t code",
-          "id": 47
+          "id": 43
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -307,12 +294,12 @@
         "source_port": "✗",
         "target_port": "",
         "source": {
-          "name": ":$ swipl -g '[mergeCode].' -l /dev/stdin -g 'run.' -g 'halt.' ",
-          "id": 43
+          "name": ":$ swipl -g '[mergeCode].' -l /dev/stdin -g 'run.' -g 'halt.'",
+          "id": 70
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -325,7 +312,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -338,7 +325,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -351,7 +338,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -364,7 +351,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -377,7 +364,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -390,7 +377,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -403,7 +390,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -416,7 +403,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -429,7 +416,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -442,7 +429,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -455,7 +442,7 @@
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -464,11 +451,11 @@
         "target_port": "",
         "source": {
           "name": "Read Text File",
-          "id": 63
+          "id": 59
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -477,11 +464,11 @@
         "target_port": "",
         "source": {
           "name": ":$ swipl -g '[emit].' -l /dev/stdin -g 'emit.' -g 'halt.'",
-          "id": 70
+          "id": 66
         },
         "target": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       },
       {
@@ -490,11 +477,11 @@
         "target_port": "",
         "source": {
           "name": ":$ swipl -g '[emit].' -l /dev/stdin -g 'emit.' -g 'halt.'",
-          "id": 70
+          "id": 66
         },
         "target": {
           "name": ":$ _/brace_indent",
-          "id": 51
+          "id": 47
         }
       },
       {
@@ -503,11 +490,24 @@
         "target_port": "",
         "source": {
           "name": ":$ _/t2t code",
-          "id": 47
+          "id": 43
         },
         "target": {
           "name": ":$ swipl -g '[emit].' -l /dev/stdin -g 'emit.' -g 'halt.'",
+          "id": 66
+        }
+      },
+      {
+        "dir": 1,
+        "source_port": "",
+        "target_port": "",
+        "source": {
+          "name": ":$ swipl -g '[mergeCode].' -l /dev/stdin -g 'run.' -g 'halt.'",
           "id": 70
+        },
+        "target": {
+          "name": ":$ _/t2t code",
+          "id": 43
         }
       },
       {
@@ -525,7 +525,7 @@
         "target_port": "py",
         "source": {
           "name": ":$ _/indent",
-          "id": 59
+          "id": 55
         }
       },
       {
@@ -534,7 +534,7 @@
         "target_port": "sm",
         "source": {
           "name": ":$ _/brace_indent",
-          "id": 51
+          "id": 47
         }
       },
       {
@@ -543,7 +543,7 @@
         "target_port": "✗",
         "source": {
           "name": "🚫",
-          "id": 67
+          "id": 63
         }
       }
     ],

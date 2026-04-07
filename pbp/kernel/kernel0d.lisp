@@ -435,7 +435,7 @@ x))))
   (declare (ignorable  child  mev))                         #|line 302|#
   (cond
     ( (not (null (uiop:getenv "PBPSTEPPING")))              #|line 303|#
-      (format *error-output* "~a~%"  (concatenate 'string  "-- stepping '"  (concatenate 'string (slot-value  child 'name)  "'"))) #|line 304|#
+      (format *error-output* "~a~%"  (concatenate 'string  "-- stepping ❮"  (concatenate 'string (slot-value  child 'name)  "❯"))) #|line 304|#
       (format *error-output* "
       ")                                                    #|line 305|# #|line 306|#
       ))

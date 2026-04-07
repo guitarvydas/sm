@@ -8,7 +8,12 @@ vsh=smdpl
 ${PBP}/das2json ${vsh}.drawio
 export PBPSTEPPING="1"
 python smdpl.py ${target}.drawio main ${vsh}.drawio.json | ${PBP}/splitoutputs
-cat out.py | python replace.py "✣" "${target}" >"${target}.py"
+if [ -f "out.py" ]; then
+    cat out.py | python replace.py "✣" "${target}" >"${target}.py"
+    python ${target}.py
+else
+    exit 1
+fi
 
 ############################
 

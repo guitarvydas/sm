@@ -309,7 +309,7 @@ function is_self (child,container) {                   /* line 297 */
 
 function step_child_once (child,mev) {                 /* line 302 */
     if (( (typeof process.env.PBPSTEPPING !== "undefined") )) {/* line 303 */
-      console.error ( ( "-- stepping '".toString ()+  ( child.name.toString ()+  "'".toString ()) .toString ()) );/* line 304 */
+      console.error ( ( "-- stepping ❮".toString ()+  ( child.name.toString ()+  "❯".toString ()) .toString ()) );/* line 304 */
                                                        /* line 305 *//* line 306 */
     }
     let before_state =  child.state;                   /* line 307 */

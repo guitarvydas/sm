@@ -6,11 +6,11 @@ class SM_looptest:
         
     def step_idle (self):
         c = self.ctx
-        if (c.x > c.w):
+        if (c.x >= c.w):
             self.exit_idle ()
             c.reverse ()
             self.enter_wait_for_w_recrossing ()
-        if (c.x < 0):
+        if (c.x <= 0):
             self.exit_idle ()
             c.reverse ()
             self.enter_wait_for_zero_recrossing ()
@@ -23,7 +23,7 @@ class SM_looptest:
         
     def step_wait_for_w_recrossing (self):
         c = self.ctx
-        if (c.x <= c.w):
+        if (c.x < c.w):
             self.exit_wait_for_w_recrossing ()
             self.enter_idle ()
     def exit_wait_for_w_recrossing (self):

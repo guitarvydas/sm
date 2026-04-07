@@ -9,4 +9,7 @@ def reverse ():
     print (f'reverse')
 
 print (uut.state)
+uut.step ()
+print (uut.state)
+
 

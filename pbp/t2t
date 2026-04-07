@@ -1,9 +1,6 @@
 #!/bin/bash
-${PBP}/pbplog "in pbp/t2t /$@/ T2TVERBOSE=${T2TVERBOSE}"
+${PBP}/pbplog "in pbp/t2t T2TVERBOSE=${T2TVERBOSE}"
 set -e
-RID=${RANDOM}
-src=temp.${RID}.src
-cat - >${src}
 
 if [ "$#" -eq 1 ]; then
   grammar="${PBPWD}/$1.ohm"
@@ -16,6 +13,7 @@ else
   echo "   or: $0 grammar-base rewrite-base" >&2
   exit 1
 fi
+src=-
 
 # t2tlibd is the lib directory for t2t
 t2tlibd="${PBP}/t2td/lib"
@@ -23,12 +21,12 @@ t2tlibd="${PBP}/t2td/lib"
 wsupport="${PBPWD}/support.mjs"
 
 
-node "${t2tlibd}/rwr.mjs" "${rewrite}" >"${PBPWD}/temp.${RID}.rewrite.mjs"
+node "${t2tlibd}/rwr.mjs" "${rewrite}" >"${PBPWD}/temp.rewrite.mjs"
 
-sed -e 's/`/` + "`" + String.raw`/g' <"${grammar}" >"${PBPWD}/temp.${RID}.grammar"
+sed -e 's/`/` + "`" + String.raw`/g' <"${grammar}" >"${PBPWD}/temp.grammar"
 
-nanodsl="${PBPWD}/temp.nanodsl.${RID}.mjs"
+nanodsl="${PBPWD}/temp.nanodsl.${RANDOM}.mjs"
 
-cat "${t2tlibd}/front.part.js" "${PBPWD}/temp.${RID}.grammar" "${t2tlibd}/middle.part.js" "${t2tlibd}/args.part.js" "${wsupport}" "${PBPWD}/temp.${RID}.rewrite.mjs" "${t2tlibd}/tail.part.js" >"${nanodsl}"
+cat "${t2tlibd}/front.part.js" "${PBPWD}/temp.grammar" "${t2tlibd}/middle.part.js" "${t2tlibd}/args.part.js" "${wsupport}" "${PBPWD}/temp.rewrite.mjs" "${t2tlibd}/tail.part.js" >"${nanodsl}"
 
 node "${nanodsl}" "${src}"

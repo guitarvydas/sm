@@ -1,30 +1,14 @@
 #!/bin/bash
 
 ######### commands specific to this project #############
-fname=looptest
 
-fanout=fanout-${RANDOM}
+target=looptest
+vsh=smdpl
 
-${PBP}/t2t rmgeometry <looptest.drawio |\
-    ${PBP}/t2t cull |\
-    ${PBP}/t2t rmdiv |\
-    ${PBP}/t2t rmspan |\
-    ${PBP}/t2t unhtml |\
-    ${PBP}/t2t kinds >"${fanout}".mr
-${PBP}/t2t mr2json <"${fanout}".mr >mr.json
-${PBP}/t2t mr2pl <"${fanout}".mr | python commarpar.py >mr.pl
-swipl -g '[mergeCode].' -g '[mr].' -g 'run.' -g 'halt.' |\
-    ${PBP}/t2t code >merged.pl
-swipl -g '[emit].' -g '[merged].' -g 'emit.' -g 'halt.' |\
-    ${PBP}/brace_indent |\
-    tee ${fname}.sm |\
-    ${PBP}/t2t sm sm-metapy |\
-    ${PBP}/indent |\
-    python replace.py "✣" "${fname}" >"${fname}".py
-cat "${fname}.py"
-
-rm -f "${fanout}"
-
+${PBP}/das2json ${vsh}.drawio
+export PBPSTEPPING="1"
+python smdpl.py ${target}.drawio main ${vsh}.drawio.json | ${PBP}/splitoutputs
+cat out.py | python replace.py "✣" "${target}" >"${target}.py"
 
 ############################
 

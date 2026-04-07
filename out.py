@@ -1,4 +1,4 @@
-class SM_looptest:
+class SM_✣:
     
     def enter_idle (self):
         self.state = "idle"
@@ -42,4 +42,4 @@ class SM_looptest:
             "wait for zero recrossing": self.step_wait_for_zero_recrossing,
         } [self.state] ()
         
-sm = SM_looptest ()
+sm = SM_✣ ()

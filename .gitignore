@@ -6,3 +6,5 @@ venv/
 node_modules/
 junk*
 temp*
+
+pbplog.txt

@@ -1,6 +1,8 @@
 #!/bin/bash
-export PBPSTEPPING="1"
+# echo '*** automated test ***'
+# export PBPSTEPPING="1"
 # ${PBP}/das2json tester.drawio
 # python testermain.py "" test tester.drawio.json
+
 echo '*** manual test ***'
 python manual-tester.py # old, manual version

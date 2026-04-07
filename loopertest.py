@@ -3,12 +3,17 @@ import kernel0d as zd
 
 import looper
 
-x = 1
+Class Env:
+    def __init__ (self):
+        self.x = 1
+        self.reverse = rev
+    def rev (eh):
+        zd.send (eh, "", " ** reverse **", mev)
+        ---- unfinished!!! -------
+        
 def handler (eh,mev):
     global x
     uut = eh.instance_data
-    def reverse ():
-        zd.send (eh, "", "reverse", mev)
     try:
         if mev.port == "x":
             x = int (mev.datum.v)
@@ -23,7 +28,7 @@ def reset_handler (eh):
     
 def instantiate (reg,owner,name, arg, template_data):
     name_with_id = zd.gensymbol ( "Looper Tester")
-    uut = looper.SM_looper(context=sys.modules['__main__']) # uut == unit under test
+    uut = looper.SM_looper(env=sys.modules['__main__']) # uut == unit under test
     return zd.make_leaf ( name_with_id, owner, uut, arg, handler, reset_handler)
 
 # define template

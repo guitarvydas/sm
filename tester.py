@@ -1,17 +1,13 @@
 import sys
-
-x = 0
-w = 100
-
 import looptest
 
-uut = looptest.SM_looptest(context=sys.modules['__main__']) # uut == unit under test
+w = 100
 
-def reverse ():
-    print (f'reverse')
+def reverse():
+    print(f'reverse')
 
-print (uut.state)
-uut.step ()
-print (uut.state)
+uut = looptest.SM_looptest(context=sys.modules['__main__'])
 
-
+for x in list(range(0, 126, 21)) + list(range(100, -26, -21)) + list(range(-21, 51, 21)):
+    print(f'x={x:4d}  state={uut.state}')
+    uut.step()

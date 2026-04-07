@@ -1,22 +1,22 @@
 state "idle" {
     {}
     {
-        %next "wait for w recrossing" %when (x > w) {reverse ()}
-        %next "wait for zero recrossing" %when (x < 0) {reverse ()}
+        %next "wait for w recrossing" %when (c.x > c.w) {c.reverse ()}
+        %next "wait for zero recrossing" %when (c.x < 0) {c.reverse ()}
         }
     {}
     }
 state "wait for w recrossing" {
     {}
     {
-        %next "idle" %when (x <= w)
+        %next "idle" %when (c.x <= c.w)
         }
     {}
     }
 state "wait for zero recrossing" {
     {}
     {
-        %next "idle" %when (x >= 0)
+        %next "idle" %when (c.x >= 0)
         }
     {}
     }

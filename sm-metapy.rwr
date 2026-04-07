@@ -4,12 +4,13 @@
   Main [State+] =
     ‛class SM_✣:⤷
       «State»
-      def __init__ (self):⤷
+      def __init__ (self, context):⤷
+          self.ctx = context
           self.state = None
 	  self.enter_⎨get_first_state_name⎬ ()⤶
       def step (self):⤷
           ⎨create_stepper⎬⤶⤶
-      sm = SM_✣ ()’
+      ’
   
   State [_state name lb Enter Step Exit rb] =
     ⎡ statename=‛«name»’
@@ -18,9 +19,9 @@
       ⎦
     ⎦
 
-  Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\nself.state = "⟪statename⟫"\n«a»⤶’
-  Step [a] = ‛\ndef step_⎨legalize ‛⟪statename⟫’⎬ (self):⤷«a»⤶’
-  Exit [a] = ‛\ndef exit_⎨legalize ‛⟪statename⟫’⎬ (self):⤷«a»⤶’
+  Enter [a] = ‛\ndef enter_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\nc = self.ctx\nself.state = "⟪statename⟫"\n«a»⤶’
+  Step [a] = ‛\ndef step_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\nc = self.ctx«a»⤶’
+  Exit [a] = ‛\ndef exit_⎨legalize ‛⟪statename⟫’⎬ (self):⤷\nc = self.ctx«a»⤶’
   enteraction_empty [_] = ‛’
   enteraction_other [a] = ‛«a»’
   action_empty [_] = ‛\npass’

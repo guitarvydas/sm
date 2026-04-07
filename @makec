@@ -10,7 +10,7 @@ export PBPSTEPPING="1"
 python smdpl.py ${target}.drawio main ${vsh}.drawio.json | ${PBP}/splitoutputs
 if [ -f "out.py" ]; then
     cat out.py | python replace.py "✣" "${target}" >"${target}.py"
-    python ${target}.py
+    ./runtest
 else
     exit 1
 fi

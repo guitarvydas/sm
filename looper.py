@@ -51,3 +51,4 @@ class SM_looper:
             "wait for w recrossing": self.step_wait_for_w_recrossing,
             "wait for zero recrossing": self.step_wait_for_zero_recrossing,
         } [self.state] ()
+        

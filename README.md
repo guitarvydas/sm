@@ -90,8 +90,9 @@ class SM_looper:
 
 
 # usage
+## install (once)
+`./INSTALL.bash`
+## make
 `./@make`
 
-# install
-`./INSTALL.bash`
 
